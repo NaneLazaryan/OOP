@@ -22,7 +22,7 @@ It is a simplified, lightweight alternative to GUI-based presentation tool like 
 - **File Management**
   - Save presentations in a plain text(.txt) or JSON(.json) format
   - Load existing presentations
-  - Export slides to image/PDF
+  - Export slides to .txt format
 
 - **Presentation Mode**
   - Full-screen slide show

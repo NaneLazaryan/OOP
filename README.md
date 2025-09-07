@@ -2,7 +2,7 @@
 
 # CLISlides – Command-Line Slide Creation and Presentation Tool
 CLISlides is a **C++ command-line application** that allows users to create, edit, and present text-based slides directly in the terminal.  
-It is a simplified, lightweight alternative to GUI-based presentation tools like Microsoft PowerPoint. 
+It is a simplified, lightweight alternative to GUI-based presentation tool like Microsoft PowerPoint. 
 
 ## ✨ Features
 

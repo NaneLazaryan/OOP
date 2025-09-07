@@ -1,14 +1,16 @@
 # OOP
 
-# QtSlides – Slide Creation and Presentation Tool
-QtSlides is a desktop application written in **C++** using the **Qt framework** that allows users to create, edit, and present slides, similar to Microsoft PowerPoint.  
+# CLISlides – Command-Line Slide Creation and Presentation Tool
+CLISlides is a **C++ command-line application** that allows users to create, edit, and present text-based slides directly in the terminal.  
+It is a simplified, lightweight alternative to GUI-based presentation tools like Microsoft PowerPoint. 
 
 ## ✨ Features
 
 - **Slide Creation**
   - Add, edit, and delete slides
+  - Organize slides in a sequence
   - Support for text, images, shapes and tables
-  - Custom slide backgrounds (colors, gradients, images)
+  - Custom slide backgrounds (colors, images)
  
 - **Slide Editing**
   - Rich text, shape formatting (fonts, sizes, colors, line thickness, style, ...)
@@ -18,22 +20,21 @@ QtSlides is a desktop application written in **C++** using the **Qt framework** 
   - Undo/redo system
 
 - **File Management**
-  - Save and load presentations
+  - Save presentations in a plain text(.txt) or JSON(.json) format
+  - Load existing presentations
   - Export slides to image/PDF
 
 - **Presentation Mode**
   - Full-screen slide show
-  - Keyboard navigation (←, →, Space, Esc)
+  - Navigate using keyboard (Next(n)/Previous(p)/Quit(q))
 
  ## 🛠️ Tech Stack
 - **Language**: C++
-- **Framework**: Qt (Qt Widgets / Qt Quick for UI)
-- **Build System**: CMake / qmake
+- **Storage**: JSON or plain text for persistence
 
 ## 🎮 Usage
-1. Launch the application.
-2. Create a new presentation or open an existing one
-3. Add slides using the _Add Slide_ button.
-4. Insert/edit/delete text, images, or shapes on the slide with the appropriate buttons
-5. Save your work.
-6. Start _Presentation Mode_ to view slides in fullscreen.
+When you run the program, you’ll be presented with a menu-based interface:
+> Welcome to CLISlides!
+> 1. Create new presentation
+> 2. Open existing presentation
+> 3. Exit

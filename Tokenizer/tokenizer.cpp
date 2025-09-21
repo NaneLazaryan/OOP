@@ -3,23 +3,27 @@
 #include <algorithm>
 
 std::unordered_map<std::string, TokenType> keywords{
-    {"add", TokenType::ADD},
-    {"remove", TokenType::REMOVE},
-    {"slide", TokenType::SLIDE},
-    {"set", TokenType::SET},
-    {"title", TokenType::TITLE},
-    {"edit", TokenType::EDIT},
-    {"shape", TokenType::SHAPE},
-    {"title", TokenType::TITLE},
-    {"bullet", TokenType::BULLET}
+	{"add", TokenType::ADD},
+	{"remove", TokenType::REMOVE},
+	{"slide", TokenType::SLIDE},
+	{"set", TokenType::SET},
+	{"title", TokenType::TITLE},
+	{"edit", TokenType::EDIT},
+	{"shape", TokenType::SHAPE},
+	{"title", TokenType::TITLE},
+	{"bullet", TokenType::BULLET}
 };
 
 TokenType Tokenizer::lookupKeyword(const std::string& word)
 {
-    auto it = keywords.find(word);
+	std::string lower = word;
+	std::transform(lower.begin(), lower.end(), lower.begin(), [](unsigned char c) {
+		return static_cast<char>(std::tolower(c));
+		});
+	auto it = keywords.find(lower);
 
-    if (it != keywords.end()) return it->second;
-    return TokenType::UNKNOWN;
+	if (it != keywords.end()) return it->second;
+	return TokenType::UNKNOWN;
 }
 
 bool Tokenizer::isEnd(int i) const
@@ -27,88 +31,65 @@ bool Tokenizer::isEnd(int i) const
 	return i >= input.size();
 }
 
-//char Tokenizer::peek(int i)
-//{
-//	if (!isEnd(i)) return input[i];
-//	return '\0';
-//}
-//
-//char Tokenizer::get(int i)
-//{
-//	if (!isEnd(i)) return input[i++];
-//	return '\0';
-//}
-
-std::vector<Token> Tokenizer::tokenize()
+Token Tokenizer::tokenize()
 {
-	std::vector<Token> tokens;
+	while (pos < input.size() && std::isspace(input[pos])) ++pos;
 
-	for (size_t i = 0; i < input.size();) {
-		if (std::isspace(input[i])) { i++; continue; }
+	if (pos >= input.size()) return { TokenType::END, "" };
 
-		// Identifiers / Keywords / CLI flags
-		if (std::isalpha(input[i]) || input[i] == '-') {
-			std::string word;
+	char c = input[pos];
 
-			if (input[i] == '-') {
-				word.push_back(input[i++]);
-			}
+	// Identifiers / Keywords / CLI flags
+	if (std::isalpha(c) || c == '-') {
+		std::string word;
 
-			while (!isEnd(i) && std::isalpha(input[i]))
-				word.push_back(input[i++]);
-
-
-			TokenType type = lookupKeyword(word);
-			tokens.push_back({ type, word });
-			continue;
-
-		}
-		// Numbers
-		else if (std::isdigit(input[i])) {
-			std::string number;
-			while (!isEnd(i) && std::isdigit(input[i]))
-				number.push_back(input[i++]);
-
-			tokens.push_back({ TokenType::NUMBER, number });
-			continue;
-		}
-		// Strings
-		else if (input[i] == '"') {
-			i++;  // skip opening quote
-			std::string str;
-
-			while (!isEnd(i) && input[i] != '"')
-				str.push_back(input[i++]);
-
-			if (!isEnd(i) && input[i] == '"') i++; // consume closing quote
-			tokens.push_back({ TokenType::STRING, str });
-			continue;
+		if (c == '-') {
+			word.push_back(input[pos++]);
 		}
 
-		// Symbols
-		if (input[i] == '(') {
-			tokens.push_back({ TokenType::LPAREN,"(" });
-			i++;
-			continue;
-		}
+		while (!isEnd(pos) && std::isalpha(input[pos]))
+			word.push_back(input[pos++]);
 
-		if (input[i] == ')') {
-			tokens.push_back({ TokenType::RPAREN, ")" });
-			i++;
-			continue;
-		}
 
-		if (input[i] == ',') {
-			tokens.push_back({ TokenType::COMMA, "," });
-			i++;
-			continue;
-		}
+		TokenType type = lookupKeyword(word);
+		return { type, word };
+	}
+	// Numbers
+	else if (std::isdigit(c)) {
+		std::string number;
+		while (!isEnd(pos) && std::isdigit(input[pos]))
+			number.push_back(input[pos++]);
 
-		// Unknown
-		tokens.push_back({ TokenType::UNKNOWN, std::string(1, input[i]) });
+		return { TokenType::NUMBER, number };
+	}
+	// Strings
+	else if (c == '"') {
+		pos++;  // skip opening quote
+		std::string str;
 
+		while (!isEnd(pos) && input[pos] != '"')
+			str.push_back(input[pos++]);
+
+		if (!isEnd(pos) && input[pos] == '"') pos++; // consume closing quote
+		return { TokenType::STRING, str };
 	}
 
-	tokens.push_back({ TokenType::END, "" });
-	return tokens;
+	// Symbols
+	if (c == '(') {
+		++pos;
+		return { TokenType::RPAREN, ")" };
+	}
+	if (c == ')') {
+		++pos;
+		return { TokenType::RPAREN, ")" };
+	}
+	if (c == ',') {
+		++pos;
+		return Token{ TokenType::COMMA, "," };
+	}
+
+	// Unknown
+	++pos;
+	return Token{ TokenType::UNKNOWN, std::string(1, c) };
+
 }

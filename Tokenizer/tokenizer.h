@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <istream>
 
 enum class TokenType
 {
@@ -21,15 +22,14 @@ struct Token
 class Tokenizer
 {
 public:
-	Tokenizer(std::string str) : input(str) {}
+	Tokenizer(std::string str) : input(str), pos(0) {}
 
 	TokenType lookupKeyword(const std::string& word);
-	std::vector<Token> tokenize();
+	Token tokenize();
 
 private:
 	std::string input;
+	size_t pos;
 
 	bool isEnd(int i) const;
-	//char peek(int i);
-	//char get(int i);
 };

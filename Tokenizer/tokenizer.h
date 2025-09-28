@@ -5,31 +5,45 @@
 
 enum class TokenType
 {
-	ADD, REMOVE, EDIT, SET,
+	KEYWORD,     // CREATE, ADD, SET, SLIDE, TEXT, IMAGE, TITLE
+	NUMBER,
+	STRING,
+	SYMBOL,      // {}, (), ;
+	END_OF_LINE,
+	UNKNOWN
+};
+
+enum class Keyword
+{
+	ADD, REMOVE, EDIT, SET, AT,
 	SLIDE, TITLE, BULLET, SHAPE,
-	TYPE, AT,
-	STRING, IDENT, NUMBER,
-	LPAREN, RPAREN, COMMA,
-	END, UNKNOWN
+	UNKNOWN
 };
 
 struct Token
 {
 	TokenType name;
 	std::string value;
+	Keyword keyword;
 };
+
 
 class Tokenizer
 {
 public:
-	Tokenizer(std::string str) : input(str), pos(0) {}
-
-	TokenType lookupKeyword(const std::string& word);
+	Tokenizer(std::istream& input) : stream(input), buff_pos(0), buff_size(0) {}
+	
+	Keyword lookupKeyword(const std::string& word);
 	Token tokenize();
-
 private:
-	std::string input;
-	size_t pos;
+	std::istream& stream;
+	static constexpr size_t BUFF_SIZE = 1024;
+	char buffer[BUFF_SIZE];
+	size_t buff_pos;
+	size_t buff_size;
 
-	bool isEnd(int i) const;
+	bool fillBuffer();
+	char peek(); // current character
+	char get();  // next character
+	bool isEnd() const;
 };

@@ -2,19 +2,53 @@
 #include <unordered_map>
 #include <algorithm>
 
-std::unordered_map<std::string, TokenType> keywords{
-	{"add", TokenType::ADD},
-	{"remove", TokenType::REMOVE},
-	{"slide", TokenType::SLIDE},
-	{"set", TokenType::SET},
-	{"title", TokenType::TITLE},
-	{"edit", TokenType::EDIT},
-	{"shape", TokenType::SHAPE},
-	{"title", TokenType::TITLE},
-	{"bullet", TokenType::BULLET}
+std::unordered_map<std::string, Keyword> keywords{
+	{"add", Keyword::ADD},
+	{"remove", Keyword::REMOVE},
+	{"slide", Keyword::SLIDE},
+	{"set", Keyword::SET},
+	{"title", Keyword::TITLE},
+	{"edit", Keyword::EDIT},
+	{"shape", Keyword::SHAPE},
+	{"bullet", Keyword::BULLET},
+	{"at", Keyword::AT}
 };
 
-TokenType Tokenizer::lookupKeyword(const std::string& word)
+bool Tokenizer::fillBuffer()
+{
+	if (buff_pos >= buff_size) {
+		stream.read(buffer, BUFF_SIZE);  // reads new chunk of data
+		buff_size = stream.gcount();
+		buff_pos = 0;
+
+	}
+	return buff_size > 0;
+}
+
+bool Tokenizer::isEnd() const
+{
+	return buff_pos >= buff_size && stream.eof();
+}
+
+char Tokenizer::peek()
+{
+	if (buff_pos >= buff_size && !fillBuffer()) {
+		return '\0';
+	}
+
+	return buffer[buff_pos];
+}
+
+char Tokenizer::get()
+{
+	if (buff_pos >= buff_size && !fillBuffer()) {
+		return '\0';
+	}
+
+	return buffer[buff_pos++];
+}
+
+Keyword Tokenizer::lookupKeyword(const std::string& word)
 {
 	std::string lower = word;
 	std::transform(lower.begin(), lower.end(), lower.begin(), [](unsigned char c) {
@@ -23,73 +57,63 @@ TokenType Tokenizer::lookupKeyword(const std::string& word)
 	auto it = keywords.find(lower);
 
 	if (it != keywords.end()) return it->second;
-	return TokenType::UNKNOWN;
-}
-
-bool Tokenizer::isEnd(int i) const
-{
-	return i >= input.size();
+	return Keyword::UNKNOWN;
 }
 
 Token Tokenizer::tokenize()
 {
-	while (pos < input.size() && std::isspace(input[pos])) ++pos;
+	// Skip whitespace
+	while (!isEnd() && std::isspace(static_cast<unsigned char>(peek()))) {
+		get();
+	}
 
-	if (pos >= input.size()) return { TokenType::END, "" };
+	if (isEnd()) {
+		return { TokenType::END_OF_LINE, "", Keyword::UNKNOWN };
+	}
 
-	char c = input[pos];
+	char c = peek();
 
 	// Identifiers / Keywords / CLI flags
-	if (std::isalpha(c) || c == '-') {
+	if (std::isalpha(static_cast<unsigned char>(c)) || c == '-') {
 		std::string word;
 
 		if (c == '-') {
-			word.push_back(input[pos++]);
+			word.push_back(get());
 		}
 
-		while (!isEnd(pos) && std::isalpha(input[pos]))
-			word.push_back(input[pos++]);
+		while (!isEnd() && std::isalnum(static_cast<unsigned char>(peek())))
+			word.push_back(get());
 
-
-		TokenType type = lookupKeyword(word);
-		return { type, word };
+		Keyword kyw = lookupKeyword(word);
+		return { TokenType::KEYWORD, word, kyw };
 	}
 	// Numbers
-	else if (std::isdigit(c)) {
+	else if (std::isdigit(static_cast<unsigned char>(c))) {
 		std::string number;
-		while (!isEnd(pos) && std::isdigit(input[pos]))
-			number.push_back(input[pos++]);
+		while (!isEnd() && std::isdigit(static_cast<unsigned char>(peek())))
+			number.push_back(get());
 
-		return { TokenType::NUMBER, number };
+		return { TokenType::NUMBER, number, Keyword::UNKNOWN };
 	}
 	// Strings
 	else if (c == '"') {
-		pos++;  // skip opening quote
+		get();  // skip opening quote
 		std::string str;
 
-		while (!isEnd(pos) && input[pos] != '"')
-			str.push_back(input[pos++]);
+		while (!isEnd() && peek() != '"')
+			str.push_back(get());
 
-		if (!isEnd(pos) && input[pos] == '"') pos++; // consume closing quote
-		return { TokenType::STRING, str };
+		if (!isEnd() && peek() == '"') get(); // consume closing quote
+		return { TokenType::STRING, str, Keyword::UNKNOWN };
 	}
 
 	// Symbols
-	if (c == '(') {
-		++pos;
-		return { TokenType::RPAREN, ")" };
-	}
-	if (c == ')') {
-		++pos;
-		return { TokenType::RPAREN, ")" };
-	}
-	if (c == ',') {
-		++pos;
-		return Token{ TokenType::COMMA, "," };
+	if (c == '(' || c == ')' || c == ',' || c == '{' || c == '}' || c == ';') {
+		std::string symbol(1, get());
+		return { TokenType::SYMBOL, symbol, Keyword::UNKNOWN };
 	}
 
 	// Unknown
-	++pos;
-	return Token{ TokenType::UNKNOWN, std::string(1, c) };
-
+	get();
+	return { TokenType::UNKNOWN, std::string(1, c), Keyword::UNKNOWN };
 }

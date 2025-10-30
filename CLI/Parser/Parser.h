@@ -21,12 +21,6 @@ public:
 	Parser(std::istream& stream);
 	
 	std::unique_ptr<Command> parse();
-	void processToken(Token token, std::unique_ptr<Command>& cmd);
-	//void parseArgs(const ArgumentList& arguments);
-	//bool tryParseCoordinate(const std::string& input, std::pair<double, double>& coord);
-	/*bool isCoordinateStart(const Token& token);
-	bool tryParseCoordinateFromTokens(std::pair<double, double>& coord);*/
-
 private:
 	Tokenizer tokenizer;
 	Token currentToken;
@@ -36,4 +30,14 @@ private:
 	Token nextToken();
 
 	State transitionTable[20][20];
+private:
+	void initializeTransitionTable();
+	void validateToken(const Token& token);
+
+	void processToken(Token token, std::unique_ptr<Command>& cmd);
+
+	// State-specific processors
+	void processStartState(const Token& token);
+	void processActionState(const Token& token, std::unique_ptr<Command>& cmd);
+	void processArgumentsState(const Token& token, std::unique_ptr<Command>& cmd);
 };

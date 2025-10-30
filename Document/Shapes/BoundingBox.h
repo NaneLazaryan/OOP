@@ -20,7 +20,7 @@ public:
 	Point getBottomRight() const;
 
 	void setXTopLeft(float);
-	void setYTOPLeft(float);
+	void setYTopLeft(float);
 
 	void setXBottomRight(float);
 	void setYBottomRight(float);

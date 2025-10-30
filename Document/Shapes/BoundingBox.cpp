@@ -15,7 +15,7 @@ void BoundingBox::setXTopLeft(float x)
 	topLeft.x = x;
 }
 
-void BoundingBox::setYTOPLeft(float y)
+void BoundingBox::setYTopLeft(float y)
 {
 	topLeft.y = y;
 }

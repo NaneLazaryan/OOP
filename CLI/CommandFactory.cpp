@@ -1,7 +1,7 @@
 #include "CommandFactory.h"
 #include "IncludsCommands.h"
 
-std::unique_ptr<Command> CommandFactory::createCommand(Keyword action, Keyword target)
+std::unique_ptr<ICommand> CommandFactory::createCommand(Keyword action, Keyword target)
 {
 	if (!isValidCombination(action, target))
 		throw std::invalid_argument("Invalid command combination");
@@ -38,7 +38,7 @@ bool CommandFactory::isValidCombination(Keyword action, Keyword target)
 	}
 }
 
-std::unique_ptr<Command> CommandFactory::createAddCommand(Keyword target)
+std::unique_ptr<ICommand> CommandFactory::createAddCommand(Keyword target)
 {
 	switch (target)
 	{
@@ -51,7 +51,7 @@ std::unique_ptr<Command> CommandFactory::createAddCommand(Keyword target)
 	}
 }
 
-std::unique_ptr<Command> CommandFactory::createRemoveCommand(Keyword target)
+std::unique_ptr<ICommand> CommandFactory::createRemoveCommand(Keyword target)
 {
 	switch (target)
 	{
@@ -64,7 +64,7 @@ std::unique_ptr<Command> CommandFactory::createRemoveCommand(Keyword target)
 	}
 }
 
-std::unique_ptr<Command> CommandFactory::createSetCommand(Keyword target)
+std::unique_ptr<ICommand> CommandFactory::createSetCommand(Keyword target)
 {
 	switch (target)
 	{
@@ -76,18 +76,16 @@ std::unique_ptr<Command> CommandFactory::createSetCommand(Keyword target)
 	}
 }
 
-std::unique_ptr<Command> CommandFactory::createEditCommand(Keyword target)
+// Working...
+std::unique_ptr<ICommand> CommandFactory::createEditCommand(Keyword target)
 {
 	switch (target)
 	{
 	case Keyword::SLIDE:
-		// return std::make_unique<C_EditSlide>();
 		throw std::invalid_argument("Edit slide not yet implemented");
 	case Keyword::SHAPE:
-		// return std::make_unique<C_EditShape>();
 		throw std::invalid_argument("Edit shape not yet implemented");
 	case Keyword::BULLET:
-		// return std::make_unique<C_EditBullet>();
 		throw std::invalid_argument("Edit bullet not yet implemented");
 	default:
 		throw std::invalid_argument("Invalid target for EDIT command");

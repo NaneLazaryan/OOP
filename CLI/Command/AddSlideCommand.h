@@ -2,18 +2,37 @@
 
 #include "Command.h"
 
-class AddSlideCommand : public Command
+class AddSlideCommand : public BaseCommand
 {
 public:
-public:
 	AddSlideCommand() = default;
+	~AddSlideCommand() = default;
 
-	void execute() override
+	void execute(Presentation& pres) override
 	{
 		std::cout << "\nAdd Slide execution\n";
 
-		if (arguments.empty())
-			throw std::invalid_argument("Add Slide command requires arguments");
+		size_t pos = pres.getSlideCount();
 
+		if (hasArgument("at")) {
+			const Argument* arg = getArgument("at");
+			if (arg && arg->hasValue() && arg->isInt()) {
+				int posValue = arg->getIntValue();
+
+				if (posValue < 0)
+					throw std::invalid_argument("Position can not be negative");
+
+				if (static_cast<size_t>(posValue) > pres.getSlideCount())
+					throw std::out_of_range("Position out of range");
+
+				pos = static_cast<size_t>(posValue);
+			}
+		}
+		
+		auto newSlide = std::make_shared<Slide>();
+		presentation.addSlide(pos, newSlide);
+
+		std::cout << "Slide added at position " << pos << std::endl;
+		std::cout << "Total slides: " << pres.getSlideCount() << std::endl;
 	}
 };

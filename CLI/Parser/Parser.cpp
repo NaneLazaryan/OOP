@@ -4,7 +4,12 @@
 #include "Argument.h"
 #include "CommandFactory.h"
 
-Parser::Parser(std::istream& stream) :tokenizer(stream), currentToken({ TokenType::UNKNOWN,"", Keyword::UNKNOWN }), previousToken({ TokenType::UNKNOWN,"", Keyword::UNKNOWN })
+Parser::Parser(std::istream& stream) 
+	: tokenizer(stream), 
+	currentToken({ TokenType::UNKNOWN,"", Keyword::UNKNOWN }), 
+	previousToken({ TokenType::UNKNOWN,"", Keyword::UNKNOWN }),
+	currentFlagName(""),
+	expectedValueType(ArgType::STRING)
 {
 	initializeTransitionTable();
 }
@@ -30,6 +35,11 @@ void Parser::initializeTransitionTable()
 	transitionTable[(int)State::ARGUMENTS][(int)TokenType::KEYWORD] = State::ARGUMENTS;
 	transitionTable[(int)State::ARGUMENTS][(int)TokenType::SYMBOL] = State::ARGUMENTS;
 	transitionTable[(int)State::ARGUMENTS][(int)TokenType::END_OF_LINE] = State::DONE;
+
+	// Should see the value token
+	transitionTable[(int)State::EXPECTING_VALUE][(int)TokenType::NUMBER] = State::ARGUMENTS;
+	transitionTable[(int)State::EXPECTING_VALUE][(int)TokenType::STRING] = State::ARGUMENTS;
+	transitionTable[(int)State::EXPECTING_VALUE][(int)TokenType::KEYWORD] = State::ARGUMENTS;
 }
 
 Token Parser::nextToken()
@@ -48,9 +58,9 @@ void Parser::validateToken(const Token& token)
 	}
 }
 
-std::unique_ptr<Command> Parser::parse()
+CommandPtr Parser::parse()
 {
-	std::unique_ptr<Command> cmd;
+	CommandPtr cmd;
 	while (currentState != State::DONE && currentState != State::ERROR) {
 		previousToken = currentToken;  // Store previous token
 		currentToken = nextToken();
@@ -69,7 +79,7 @@ std::unique_ptr<Command> Parser::parse()
 	return cmd;
 }
 
-void Parser::processToken(Token token, std::unique_ptr<Command>& cmd) {
+void Parser::processToken(Token token, CommandPtr& cmd) {
 	validateToken(token);
 
 	State next = transitionTable[(int)currentState][(int)token.name];
@@ -91,6 +101,9 @@ void Parser::processToken(Token token, std::unique_ptr<Command>& cmd) {
 	case State::TARGET:
 	case State::ARGUMENTS:
 		processArgumentsState(token, cmd);
+		break;
+	case State::EXPECTING_VALUE:
+		processExpectingValueState(token, cmd);
 		break;
 	default:
 		break;
@@ -115,7 +128,7 @@ void Parser::processStartState(const Token& token)
 	}
 }
 
-void Parser::processActionState(const Token& token, std::unique_ptr<Command>& cmd)
+void Parser::processActionState(const Token& token, CommandPtr& cmd)
 {
 	if (token.name == TokenType::KEYWORD) {
 		try {
@@ -127,27 +140,24 @@ void Parser::processActionState(const Token& token, std::unique_ptr<Command>& cm
 	}
 }
 
-void Parser::processArgumentsState(const Token& token, std::unique_ptr<Command>& cmd)
+void Parser::processArgumentsState(const Token& token, CommandPtr& cmd)
 {
 	if (!cmd) return;
+
+	// Check for -at, -type, ....
+	if (isArgumentFlag(token)) {
+		currentFlagName = token.value;
+		expectedValueType = determineExpectedType(token.keyword);
+
+		currentState = State::EXPECTING_VALUE;
+		return;
+	}
 
 	ArgumentPtr arg;
 	std::string argName;
 
 	switch (token.name)
 	{
-	case TokenType::KEYWORD:
-		if (token.keyword == Keyword::AT)
-			argName = "at";
-		else if (token.keyword == Keyword::TYPE)
-			argName = "type";
-		else if (token.keyword == Keyword::POS)
-			argName = "pos";
-
-		if (!argName.empty()) {
-			arg = std::make_unique<Argument>(ArgType::STRING, token.value);
-		}
-		break;
 	case TokenType::STRING:
 		argName = "text";
 		arg = std::make_unique<Argument>(ArgType::STRING, token.value);
@@ -169,32 +179,82 @@ void Parser::processArgumentsState(const Token& token, std::unique_ptr<Command>&
 	}
 }
 
-//bool Parser::isCoordinateStart(const Token& token)
-//{
-//	// A coordinate starts with a number
-//	return token.name == TokenType::NUMBER;
-//}
-//
-//bool Parser::tryParseCoordinateFromTokens(std::pair<double, double>& coord)
-//{
-//	// This method will be called when we're in COORDINATE state
-//	// We need to look ahead to get the comma and second number
-//	Token commaToken = nextToken();
-//	if (commaToken.name != TokenType::SYMBOL || commaToken.value != ",") {
-//		return false;
-//	}
-//	
-//	Token yToken = nextToken();
-//	if (yToken.name != TokenType::NUMBER) {
-//		return false;
-//	}
-//	
-//	try {
-//		coord.first = std::stof(currentToken.value);  // x from current token
-//		coord.second = std::stof(yToken.value);       // y from next token
-//		return true;
-//	}
-//	catch (const std::exception&) {
-//		return false;
-//	}
-//}
+void Parser::processExpectingValueState(const Token& token, CommandPtr& cmd)
+{
+	if (!cmd) return;
+
+	ArgumentPtr arg = createArgument(token, expectedValueType);
+
+	if (arg) {
+		std::string flagName = currentFlagName;
+		if (!flagName.empty() && flagName[0] == '-') {
+			flagName = flagName.substr(1);
+		}
+
+		cmd->addArgument(flagName, std::move(arg));
+	}
+
+	currentFlagName.clear();
+}
+
+bool Parser::isArgumentFlag(const Token& token) const
+{
+	return token.name == TokenType::KEYWORD && (token.keyword == Keyword::AT || token.keyword == Keyword::TYPE || token.keyword == Keyword::POS || token.keyword == Keyword::SHAPE);
+}
+
+ArgType Parser::determineExpectedType(Keyword flag) const
+{
+	switch (flag)
+	{
+	case Keyword::AT:
+		return ArgType::INT;
+	case Keyword::TYPE:
+		return ArgType::STRING;
+	case Keyword::POS:
+		return ArgType::COORDINATE;
+	default:
+		return ArgType::STRING;
+	}
+}
+
+ArgumentPtr Parser::createArgument(const Token& token, ArgType expectedType)
+{
+	try {
+		switch (expectedType)
+		{
+		case ArgType::STRING:
+			if (token.name == TokenType::STRING || token.name == TokenType::KEYWORD) {
+				return std::make_unique<Argument>(ArgType::STRING, token.value);
+			}
+			break;
+		case ArgType::INT:
+			if (token.name == TokenType::NUMBER) {
+				return std::make_unique<Argument>(ArgType::INT, std::stoi(token.value));
+			}
+			break;
+		case ArgType::NUMBER:
+			if (token.name == TokenType::NUMBER) {
+				return std::make_unique<Argument>(ArgType::NUMBER, std::stof(token.value));
+			}
+			break;
+		case ArgType::COORDINATE:
+			if (token.name == TokenType::NUMBER) {
+				float x = std::stof(token.value);
+				Token comma = nextToken();
+				if (comma.name == TokenType::SYMBOL && comma.value == ",") {
+					Token yToken = nextToken();
+					if (yToken.name == TokenType::NUMBER) {
+						float y = std::stof(yToken.value);
+						return std::make_unique<Argument>(ArgType::COORDINATE, std::make_pair(static_cast<double>(x), static_cast<double>(y)));
+					}
+				}
+
+				throw std::invalid_argument("Invalid coordinate format. Expected: x,y");
+			}
+			break;
+		}
+	}
+	catch (const std::exception& ex) {
+		throw std::invalid_argument(std::string("Failed to parse argument value: ") + ex.what());
+	}
+}

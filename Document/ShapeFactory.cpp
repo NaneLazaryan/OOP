@@ -7,7 +7,7 @@ ShapeFactory::ShapeFactory()
 	registerShape("Text", []() { return std::make_unique<Text>(); });
 }
 
-void ShapeFactory::registerShape(const std::string& typeName, std::function<ShapeUPtr()> creator)
+void ShapeFactory::registerShape(const std::string& typeName, std::function<ShapePtr()> creator)
 {
 	creators[typeName] = creator;
 }

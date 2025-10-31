@@ -5,8 +5,6 @@
 #include <map>
 #include <functional>
 
-using ShapeUPtr = std::unique_ptr<IShape>;
-
 class ShapeFactory
 {
 public:
@@ -23,10 +21,10 @@ public:
 	static std::unique_ptr<IShape> createShape(IShape::ShapeType type);
 	static std::unique_ptr<IShape> createShape(const std::string& typeName);
 
-	void registerShape(const std::string& typeName, std::function<ShapeUPtr()> creator);
+	void registerShape(const std::string& typeName, std::function<ShapePtr()> creator);
 
 private:
-	std::map<std::string, std::function<ShapeUPtr()>> creators;
+	std::map<std::string, std::function<ShapePtr()>> creators;
 private:
 	ShapeFactory();
 

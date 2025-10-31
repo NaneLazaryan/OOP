@@ -199,7 +199,7 @@ void Parser::processExpectingValueState(const Token& token, CommandPtr& cmd)
 
 bool Parser::isArgumentFlag(const Token& token) const
 {
-	return token.name == TokenType::KEYWORD && (token.keyword == Keyword::AT || token.keyword == Keyword::TYPE || token.keyword == Keyword::POS || token.keyword == Keyword::SHAPE);
+	return token.name == TokenType::KEYWORD && (token.keyword == Keyword::AT || token.keyword == Keyword::TYPE || token.keyword == Keyword::POS || token.keyword == Keyword::SHAPE || token.keyword == Keyword::TEXT);
 }
 
 ArgType Parser::determineExpectedType(Keyword flag) const

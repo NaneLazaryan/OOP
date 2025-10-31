@@ -2,7 +2,7 @@
 
 void Slide::addShape(ShapePtr shape)
 {
-	objects.push_back(shape);
+	objects.push_back(std::move(shape));
 }
 
 void Slide::removeShape(size_t pos)
@@ -10,14 +10,14 @@ void Slide::removeShape(size_t pos)
 	objects.erase(objects.begin() + pos);
 }
 
-ShapePtr Slide::getShape(size_t pos)
+IShape* Slide::getShape(size_t pos)
 {
-	return objects[pos];
+	return objects[pos].get();
 }
 
-const ShapePtr Slide::getShape(size_t pos) const
+const IShape* Slide::getShape(size_t pos) const
 {
-	return objects[pos];
+	return objects[pos].get();
 }
 
 int Slide::getId() const

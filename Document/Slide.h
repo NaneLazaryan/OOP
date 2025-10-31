@@ -5,7 +5,7 @@
 class Slide
 {
 public:
-	Slide() = default;
+	Slide(): m_id(0) {}
 	explicit Slide(int id) : m_id(id) {}
 
 	~Slide() = default;
@@ -13,8 +13,8 @@ public:
 	void addShape(ShapePtr);
 	void removeShape(size_t);
 
-	ShapePtr getShape(size_t);
-	const ShapePtr getShape(size_t) const;
+	IShape* getShape(size_t);
+	const IShape* getShape(size_t) const;
 
 	int getId() const;
 	void setId(int id);

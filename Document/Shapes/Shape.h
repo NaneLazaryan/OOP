@@ -5,7 +5,8 @@
 
 #include "BoundingBox.h"
 
-class Shape
+// Interface
+class IShape
 {
 public:
 	enum class ShapeType
@@ -16,8 +17,7 @@ public:
 		Image
 	};
 
-	Shape(ShapeType type) : type(type) {}
-	virtual ~Shape() = default;
+	virtual ~IShape() = default;
 	
 	// Getters
 	virtual ShapeType getType() const = 0;
@@ -26,23 +26,19 @@ public:
 
 	virtual void draw() = 0;
 	virtual void setPosition(float x, float y) = 0;
-
-protected:
-	ShapeType type;
-	BoundingBox box;
 };
 
-using ShapePtr = std::shared_ptr<Shape>;
+using ShapePtr = std::unique_ptr<IShape>;
 using ShapeList = std::vector<ShapePtr>;
 
 
 // ----------------------- Circle -----------------------
 
-class Circle : public Shape
+class Circle : public IShape
 {
 public:
-	Circle(int r = 10.0f, float x = 0.0f, float y = 0.0f) 
-		: Shape(ShapeType::Circle), radius(r) 
+	Circle(float r = 10.0f, float x = 0.0f, float y = 0.0f) 
+		: radius(r), center(x, y)
 	{
 		updateBoundingBox();
 	}
@@ -51,7 +47,7 @@ public:
 
 	ShapeType getType() const
 	{
-		return type;
+		return ShapeType::Circle;
 	}
 
 	const BoundingBox& getBoundingBox() const
@@ -77,6 +73,7 @@ public:
 private:
 	float radius;
 	Point center;
+	BoundingBox box;
 private:
 	void updateBoundingBox();
 };
@@ -84,12 +81,12 @@ private:
 
 // ----------------------- Rectangle -----------------------
 
-class Rectangle : public Shape
+class Rectangle : public IShape
 {
 public:
 	// x, y for position(top-left corner)
 	Rectangle(float w = 10.0f, float h = 10.0f, float x = 0.0f, float y = 0.0f)
-		:Shape(ShapeType::Rectangle), width(w), height(h)
+		: width(w), height(h)
 	{
 		box = BoundingBox(Point(x, y), Point(x + w, y - h));
 	}
@@ -98,7 +95,7 @@ public:
 
 	ShapeType getType() const
 	{
-		return type;
+		return ShapeType::Rectangle;
 	}
 
 	const BoundingBox& getBoundingBox() const
@@ -130,6 +127,7 @@ public:
 private:
 	float width;
 	float height;
+	BoundingBox box;
 private:
 	void updateBoundingBox();
 };
@@ -137,14 +135,14 @@ private:
 
 // ----------------------- Text ----------------------- 
 
-class Text : public Shape
+class Text : public IShape
 {
 public:
 	Text(const std::string& content = "", float fontSize = 12.0f, float x = 0.0f, float y = 0.0f)
-		: Shape(ShapeType::Text), content(content), fontSize(fontSize)
+		: content(content), fontSize(fontSize)
 	{
 		box.setXTopLeft(x);
-		box.setXTopLeft(y);
+		box.setYTopLeft(y);
 		updateBoundingBox();
 	}
 
@@ -152,7 +150,7 @@ public:
 
 	ShapeType getType() const
 	{
-		return type;
+		return ShapeType::Text;
 	}
 
 	const BoundingBox& getBoundingBox() const
@@ -184,6 +182,7 @@ public:
 private:
 	std::string content;
 	float fontSize;
+	BoundingBox box;
 private:
 	void updateBoundingBox();
 };

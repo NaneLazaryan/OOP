@@ -3,6 +3,8 @@
 
 #include <iostream>
 
+using namespace cli;
+
 void Controller::run()
 {
 	std::cout << "Presentation Editor Ready. Enter commands (or 'exit' to quit):\n";
@@ -27,18 +29,20 @@ void Controller::run()
 			continue;
 		}
 
+
 		try {
-			std::getline(std::cin, line);
 			std::istringstream iss(line);
 
 			Parser parser(iss);
-			std::unique_ptr<ICommand> cmd = parser.parse();
+			std::unique_ptr<cmd::ICommand> cmd = parser.parse();
+
 			if (!cmd) {
 				handleError("Failed to parse command");
 				return;
 			}
 
 			cmd->execute(presentation);
+
 			std::cout << "Command executed successfully.\n";
 		}
 		catch (const std::invalid_argument& ex) {

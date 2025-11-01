@@ -3,17 +3,21 @@
 #include "Presentation.h"
 #include "Parser.h"
 
-class Controller
+
+namespace cli
 {
-public:	
-	Controller() : presentation(), m_exit(false) {}
-	~Controller() = default;
+	class Controller
+	{
+	public:
+		Controller() : presentation(), m_exit(false) {}
+		~Controller() = default;
 
-	void run();
-	void exit();
+		void run();
+		void exit();
 
-	void handleError(const std::string& message);
-private:
-	Presentation presentation;
-	bool m_exit;
-};
+		void handleError(const std::string& message);
+	private:
+		document::Presentation presentation;
+		bool m_exit;
+	};
+}

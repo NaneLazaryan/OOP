@@ -1,6 +1,9 @@
 #include "CommandFactory.h"
 #include "IncludsCommands.h"
 
+using namespace cli;
+using namespace cli::cmd;
+
 std::unique_ptr<ICommand> CommandFactory::createCommand(Keyword action, Keyword target)
 {
 	if (!isValidCombination(action, target))

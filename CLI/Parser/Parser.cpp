@@ -43,6 +43,10 @@ void Parser::initializeTransitionTable()
 	transitionTable[(int)State::EXPECTING_VALUE][(int)TokenType::NUMBER] = State::ARGUMENTS;
 	transitionTable[(int)State::EXPECTING_VALUE][(int)TokenType::STRING] = State::ARGUMENTS;
 	transitionTable[(int)State::EXPECTING_VALUE][(int)TokenType::KEYWORD] = State::ARGUMENTS;
+
+	// Standalone commands (LOAD, SAVE)
+	transitionTable[(int)State::ACTION][(int)TokenType::STRING] = State::ARGUMENTS;
+	transitionTable[(int)State::ACTION][(int)TokenType::END_OF_LINE] = State::DONE;
 }
 
 Token Parser::nextToken()
@@ -137,6 +141,8 @@ void Parser::processStartState(const Token& token)
 		case Keyword::REMOVE:
 		case Keyword::EDIT:
 		case Keyword::SET:
+		case Keyword::SAVE:
+		case Keyword::LOAD:
 			break; // Valid action keywords
 		default:
 			throw std::invalid_argument("Invalid action keyword: " + token.value);
@@ -146,6 +152,22 @@ void Parser::processStartState(const Token& token)
 
 void Parser::processActionState(const Token& token, CommandPtr& cmd)
 {
+	if (CommandFactory::isStandaloneCommand(previousToken.keyword)) {
+		try {
+			cmd = CommandFactory::createStandaloneCommand(previousToken.keyword);
+		}
+		catch (const std::invalid_argument&) {
+			throw std::invalid_argument("Invalid standalone command: " + previousToken.value);
+		}
+
+		if (token.name == TokenType::STRING) {
+			ArgumentPtr arg = std::make_unique<Argument>(ArgType::STRING, token.value);
+			cmd->addArgument("text", std::move(arg));
+		}
+
+		return;
+	}
+
 	if (token.name == TokenType::KEYWORD) {
 		try {
 			cmd = CommandFactory::createCommand(previousToken.keyword, token.keyword);

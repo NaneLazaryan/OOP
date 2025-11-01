@@ -20,6 +20,7 @@ namespace cli
 		ADD, REMOVE, EDIT, SET, AT,
 		SLIDE, TITLE, BULLET, SHAPE,
 		CIRCLE, TYPE, POS, TEXT,
+		LOAD, SAVE,
 		UNKNOWN
 	};
 

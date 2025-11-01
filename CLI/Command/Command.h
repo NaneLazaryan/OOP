@@ -4,52 +4,55 @@
 #include "Presentation.h"
 #include <memory>
 
-// Interface 
-class ICommand
+namespace cli::cmd
 {
-public:
-	virtual ~ICommand() = default;
-	virtual void execute(Presentation& pres) = 0;
-	
-	virtual void addArgument(const std::string& key, ArgumentPtr arg) = 0;
-	virtual const ArgumentMap& getArguments() const = 0;
-	virtual bool hasArgument(const std::string& key) const = 0;
-	virtual const Argument* getArgument(const std::string& key) const = 0;
-};
-
-using CommandPtr = std::unique_ptr<ICommand>;
-
-
-class BaseCommand : public ICommand
-{
-public:
-	BaseCommand() = default;
-	virtual ~BaseCommand() = default;
-
-	void addArgument(const std::string& key, ArgumentPtr arg) override
+	// Interface 
+	class ICommand
 	{
-		arguments[key] = std::move(arg);
-	}
+	public:
+		virtual ~ICommand() = default;
+		virtual void execute(document::Presentation& pres) = 0;
 
-	const ArgumentMap& getArguments() const 
+		virtual void addArgument(const std::string& key, ArgumentPtr arg) = 0;
+		virtual const ArgumentMap& getArguments() const = 0;
+		virtual bool hasArgument(const std::string& key) const = 0;
+		virtual const Argument* getArgument(const std::string& key) const = 0;
+	};
+
+	using CommandPtr = std::unique_ptr<ICommand>;
+
+
+	class BaseCommand : public ICommand
 	{
-		return arguments;
-	}
+	public:
+		BaseCommand() = default;
+		virtual ~BaseCommand() = default;
 
-	bool hasArgument(const std::string& key) const 
-	{
-		return arguments.find(key) != arguments.end();
-	}
+		void addArgument(const std::string& key, ArgumentPtr arg) override
+		{
+			arguments[key] = std::move(arg);
+		}
 
-	const Argument* getArgument(const std::string& key) const 
-	{
-		auto it = arguments.find(key);
-		if (it != arguments.end())
-			return it->second.get();
-		return nullptr;
-	}
+		const ArgumentMap& getArguments() const
+		{
+			return arguments;
+		}
 
-protected:
-	Presentation& presentation;
-	ArgumentMap arguments;
-};
+		bool hasArgument(const std::string& key) const
+		{
+			return arguments.find(key) != arguments.end();
+		}
+
+		const Argument* getArgument(const std::string& key) const
+		{
+			auto it = arguments.find(key);
+			if (it != arguments.end())
+				return it->second.get();
+			return nullptr;
+		}
+
+	protected:
+		ArgumentMap arguments;
+	};
+}
+

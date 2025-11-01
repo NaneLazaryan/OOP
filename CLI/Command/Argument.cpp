@@ -1,5 +1,7 @@
 #include "Argument.h"
 
+using namespace cli;
+
 ArgType Argument::getType() const 
 {
     return type;
@@ -8,27 +10,6 @@ ArgType Argument::getType() const
 bool Argument::hasValue() const 
 {
     return flag;
-}
-
-template <typename T>
-const T& Argument::getValue() const 
-{
-    if (!hasValue()) {
-        throw std::runtime_error("Argument has no value");
-    }
-    if (!std::holds_alternative<T>(value)) {
-        throw std::runtime_error("Argument type mismatch");
-    }
-    return std::get<T>(value);
-}
-
-template <typename T>
-T Argument::getValueOrDefault(const T& defaultValue) const 
-{
-    if (!hasValue() || !std::holds_alternative<T>(value)) {
-        return defaultValue;
-    }
-    return std::get<T>(value);
 }
 
 std::string Argument::getStrValue() const
@@ -51,25 +32,25 @@ std::pair<double, double> Argument::getPairValue() const
     return getValue<std::pair<double, double>>();
 }
 
-std::string Argument::getStrValueOrDefault(const std::string& defaultValue) const 
-{
-    return getValueOrDefault<std::string>(defaultValue);
-}
-
-int Argument::getIntValueOrDefault(int defaultValue) const 
-{
-    return getValueOrDefault<int>(defaultValue);
-}
-
-float Argument::getFloatValueOrDefault(float defaultValue) const 
-{
-    return getValueOrDefault<float>(defaultValue);
-}
-
-std::pair<double, double> Argument::getPairValueOrDefault(const std::pair<double, double>& defaultValue) const 
-{
-    return getValueOrDefault<std::pair<double, double>>(defaultValue);
-}
+//std::string Argument::getStrValueOrDefault(const std::string& defaultValue) const 
+//{
+//    return getValueOrDefault<std::string>(defaultValue);
+//}
+//
+//int Argument::getIntValueOrDefault(int defaultValue) const 
+//{
+//    return getValueOrDefault<int>(defaultValue);
+//}
+//
+//float Argument::getFloatValueOrDefault(float defaultValue) const 
+//{
+//    return getValueOrDefault<float>(defaultValue);
+//}
+//
+//std::pair<double, double> Argument::getPairValueOrDefault(const std::pair<double, double>& defaultValue) const 
+//{
+//    return getValueOrDefault<std::pair<double, double>>(defaultValue);
+//}
 
 // Setter
 void Argument::setValue(const ArgValue& val) 

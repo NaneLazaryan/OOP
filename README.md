@@ -60,7 +60,7 @@ It is a simplified, lightweight alternative to GUI-based presentation tool like 
 | Remove Slide | remove slide -at pos | Delete slide |
 | Add Shape | add shape -type type -at slide | Add shape to slide |
 | Remove Shape | remove shape -at slide | Remove shape | 
-| Set Title | set title "text" | Set presentation title |
+| Set Title | set title -text "text" | Set presentation title |
 | Exit | exit | Quit application |
 
 ## 💡 Usage Examples

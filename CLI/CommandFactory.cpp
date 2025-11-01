@@ -4,7 +4,25 @@
 using namespace cli;
 using namespace cli::cmd;
 
-std::unique_ptr<ICommand> CommandFactory::createCommand(Keyword action, Keyword target)
+bool CommandFactory::isStandaloneCommand(Keyword action)
+{
+	return action == Keyword::LOAD || action == Keyword::SAVE;
+}
+
+CommandPtr CommandFactory::createStandaloneCommand(Keyword action)
+{
+	switch (action)
+	{
+	case Keyword::SAVE:
+		return std::make_unique<SaveCommand>();
+	case Keyword::LOAD:
+		return std::make_unique<LoadCommand>();
+	default:
+		throw std::invalid_argument("Not a standalone command");;
+	}
+}
+
+CommandPtr CommandFactory::createCommand(Keyword action, Keyword target)
 {
 	if (!isValidCombination(action, target))
 		throw std::invalid_argument("Invalid command combination");
@@ -41,7 +59,7 @@ bool CommandFactory::isValidCombination(Keyword action, Keyword target)
 	}
 }
 
-std::unique_ptr<ICommand> CommandFactory::createAddCommand(Keyword target)
+CommandPtr CommandFactory::createAddCommand(Keyword target)
 {
 	switch (target)
 	{
@@ -54,7 +72,7 @@ std::unique_ptr<ICommand> CommandFactory::createAddCommand(Keyword target)
 	}
 }
 
-std::unique_ptr<ICommand> CommandFactory::createRemoveCommand(Keyword target)
+CommandPtr CommandFactory::createRemoveCommand(Keyword target)
 {
 	switch (target)
 	{
@@ -67,7 +85,7 @@ std::unique_ptr<ICommand> CommandFactory::createRemoveCommand(Keyword target)
 	}
 }
 
-std::unique_ptr<ICommand> CommandFactory::createSetCommand(Keyword target)
+CommandPtr CommandFactory::createSetCommand(Keyword target)
 {
 	switch (target)
 	{
@@ -80,7 +98,7 @@ std::unique_ptr<ICommand> CommandFactory::createSetCommand(Keyword target)
 }
 
 // Working...
-std::unique_ptr<ICommand> CommandFactory::createEditCommand(Keyword target)
+CommandPtr CommandFactory::createEditCommand(Keyword target)
 {
 	switch (target)
 	{

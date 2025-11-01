@@ -10,15 +10,17 @@ namespace cli
 	class CommandFactory
 	{
 	public:
-		static std::unique_ptr<cmd::ICommand> createCommand(Keyword action, Keyword target);
+		static cmd::CommandPtr createCommand(Keyword action, Keyword target);
+		static cmd::CommandPtr createStandaloneCommand(Keyword action);
+		static bool isStandaloneCommand(Keyword action);
 		static bool isValidCombination(Keyword action, Keyword target);
 
 	private:
 		CommandFactory() = default;
 
-		static std::unique_ptr<cmd::ICommand> createAddCommand(Keyword target);
-		static std::unique_ptr<cmd::ICommand> createRemoveCommand(Keyword target);
-		static std::unique_ptr<cmd::ICommand> createSetCommand(Keyword target);
-		static std::unique_ptr<cmd::ICommand> createEditCommand(Keyword target);
+		static cmd::CommandPtr createAddCommand(Keyword target);
+		static cmd::CommandPtr createRemoveCommand(Keyword target);
+		static cmd::CommandPtr createSetCommand(Keyword target);
+		static cmd::CommandPtr createEditCommand(Keyword target);
 	};
 }

@@ -33,8 +33,6 @@ It is a simplified, lightweight alternative to GUI-based presentation tool like 
 - **Storage**: JSON or plain text for persistence
 
 ## 🎮 Usage
-When you run the program, you’ll be presented with a menu-based interface:
-> Welcome to CLISlides!
-> 1. Create new presentation
-> 2. Open existing presentation
-> 3. Exit
+When you run the program, you’ll be presented with the following interface:
+> Presentation Editor Ready. Enter commands (or 'exit' to quit):
+ >

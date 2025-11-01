@@ -56,9 +56,11 @@ It is a simplified, lightweight alternative to GUI-based presentation tool like 
 ## 🎓 Command Quick Reference
 | Command | Syntax | Description |
 | ---------|----------------------|------------------|
-| Add Slide| add slide [-at <pos>]| Create new slide |
-| Remove Slide| remove slide -at <pos>| Delete slide |
-Add Shapeadd shape -type <type> -at <slide>Add shape to slideRemove Shaperemove shape -at <slide>Remove shapeSet Titleset title "text"Set presentation titleExitexitQuit application
+| Add Slide | add slide [-at <pos>]|  Create new slide |
+| Remove Slide | remove slide -at <pos> | Delete slide |
+| Add Shape | add shape -type <type> -at <slide> | Add shape to slide |
+| Remove Shape |remove shape -at <slide>Remove shape | Set Titleset title "text"Set presentation title |
+| Exit | exit | Quit application |
 
 ## 💡 Usage Examples
 When you run the program, you’ll be presented with the following interface:

@@ -35,4 +35,10 @@ It is a simplified, lightweight alternative to GUI-based presentation tool like 
 ## 🎮 Usage
 When you run the program, you’ll be presented with the following interface:
 > Presentation Editor Ready. Enter commands (or 'exit' to quit):
- >
+> >
+Commands follow this general pattern:
+> <ACTION> <TARGET> [OPTIONS]
+_Examples:_
+> add slide -at 2
+> add shape -type "rectangle" -at 0 -pos 100,200
+> set title "Your Title Here"

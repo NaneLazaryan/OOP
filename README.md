@@ -32,13 +32,46 @@ It is a simplified, lightweight alternative to GUI-based presentation tool like 
 - **Language**: C++
 - **Storage**: JSON or plain text for persistence
 
-## 🎮 Usage
+ ## 🏗️ Architecture
+```
+├── Controller          # Main application controller
+├── Parser              # DFA-based command parser
+├── Tokenizer          # Lexical analyzer
+├── CommandFactory     # Factory for command creation
+├── Commands           # Command pattern implementations
+│   ├── AddSlideCommand
+│   ├── AddShapeCommand
+│   ├── RemoveSlideCommand
+│   ├── RemoveShapeCommand
+│   └── SetTitleCommand
+├── ShapeFactory       # Factory for shape creation
+├── Presentation       # Presentation model
+├── Slide              # Slide model
+└── Shapes             # Shape hierarchy
+    ├── Circle
+    ├── Rectangle
+    └── Text
+```
+
+## 🎓 Command Quick Reference
+
+
+## 💡 Usage Examples
 When you run the program, you’ll be presented with the following interface:
-> Presentation Editor Ready. Enter commands (or 'exit' to quit):
-> >
+```
+ Presentation Editor Ready. Enter commands (or 'exit' to quit):
+```
 Commands follow this general pattern:
 > <ACTION> <TARGET> [OPTIONS]
-_Examples:_
-> add slide -at 2
-> add shape -type "rectangle" -at 0 -pos 100,200
-> set title "Your Title Here"
+```
+# Create presentation structure
+add slide                              # Slide 0
+add slide                              # Slide 1
+add slide                              # Slide 2
+
+# Add content
+set title "Project Overview"
+add shape -type text -at 0
+add shape -type "rectangle" -at 1 -pos 50,100
+add shape -type "circle" -at 2 -pos 200,150
+```

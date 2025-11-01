@@ -3,6 +3,16 @@
 using namespace document;
 using namespace document::shapes;
 
+// Initialize static ID counter
+int Slide::s_nextId = 1;
+
+Slide::Slide() : m_id(s_nextId++) {}
+
+void Slide::resetIdCounter()
+{
+	s_nextId = 1;
+}
+
 void Slide::addShape(ShapePtr shape)
 {
 	objects.push_back(std::move(shape));

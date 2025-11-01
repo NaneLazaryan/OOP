@@ -7,7 +7,7 @@ namespace document
 	class Slide
 	{
 	public:
-		Slide() : m_id(0) {}
+		Slide();
 		explicit Slide(int id) : m_id(id) {}
 
 		~Slide() = default;
@@ -24,9 +24,13 @@ namespace document
 		size_t getShapeCount() const;
 		const shapes::ShapeList& getShapes() const;
 
+		static void resetIdCounter();
+
 	private:
-		int m_id;
+		int m_id = 0;
 		shapes::ShapeList objects;
+		
+		static int s_nextId;
 	};
 
 	using SlidePtr = std::shared_ptr<Slide>;

@@ -17,7 +17,8 @@ namespace document
 	public:
         // Save presentation to JSON file
         static bool saveToFile(const Presentation& pres, const std::string& filename);
-        // Load presentation from JSON file
+        // Load presentation 
+
         static bool loadFromFile(Presentation& pres, const std::string& filename);
         // Serialize presentation to JSON 
         static std::string serialize(const Presentation& pres);

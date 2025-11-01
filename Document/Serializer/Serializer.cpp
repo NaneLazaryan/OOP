@@ -35,6 +35,10 @@ bool JsonSerializer::loadFromFile(Presentation& pres, const std::string& filenam
 		std::string jsonStr((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
 		file.close();
 
+		if (jsonStr.empty()) {
+			return false; // Empty file
+		}
+
 		return deserialize(pres, jsonStr);
 	}
 	catch (const std::exception&) {
@@ -80,6 +84,10 @@ bool JsonSerializer::deserialize(Presentation& pres, const std::string& jsonStr)
 		while (pos < jsonStr.length()) {
 			skipWhitespace(jsonStr, pos);
 
+			if (pos >= jsonStr.length()) {
+				break;
+			}
+
 			if (jsonStr[pos] == '}') {
 				pos++;
 				break;
@@ -102,7 +110,6 @@ bool JsonSerializer::deserialize(Presentation& pres, const std::string& jsonStr)
 					return false;
 				}
 
-				// Clear existing slides
 				while (pres.getSlideCount() > 0) {
 					pres.removeSlide(0);
 				}
@@ -111,25 +118,30 @@ bool JsonSerializer::deserialize(Presentation& pres, const std::string& jsonStr)
 				while (pos < jsonStr.length()) {
 					skipWhitespace(jsonStr, pos);
 
+					if (pos >= jsonStr.length()) {
+						return false;
+					}
+
 					if (jsonStr[pos] == ']') {
 						pos++;
 						break;
 					}
 
 					SlidePtr slide = deserializeSlide(jsonStr, pos);
-					if (slide) {
-						pres.addSlide(pres.getSlideCount(), slide);
+					if (!slide) {
+						return false; 
 					}
+					pres.addSlide(pres.getSlideCount(), slide);
 
 					skipWhitespace(jsonStr, pos);
-					if (jsonStr[pos] == ',') {
+					if (pos < jsonStr.length() && jsonStr[pos] == ',') {
 						pos++;
 					}
 				}
 			}
 
 			skipWhitespace(jsonStr, pos);
-			if (jsonStr[pos] == ',') {
+			if (pos < jsonStr.length() && jsonStr[pos] == ',') {
 				pos++;
 			}
 		}
@@ -250,6 +262,10 @@ SlidePtr JsonSerializer::deserializeSlide(const std::string& jsonStr, size_t& po
 	while (pos < jsonStr.length()) {
 		skipWhitespace(jsonStr, pos);
 
+		if (pos >= jsonStr.length()) {
+			break;
+		}
+
 		if (jsonStr[pos] == '}') {
 			pos++;
 			break;
@@ -279,18 +295,23 @@ SlidePtr JsonSerializer::deserializeSlide(const std::string& jsonStr, size_t& po
 			while (pos < jsonStr.length()) {
 				skipWhitespace(jsonStr, pos);
 
+				if (pos >= jsonStr.length()) {
+					return nullptr;
+				}
+
 				if (jsonStr[pos] == ']') {
 					pos++;
 					break;
 				}
 
 				ShapePtr shape = deserializeShape(jsonStr, pos);
-				if (shape) {
-					slide->addShape(std::move(shape));
+				if (!shape) {
+					return nullptr; 
 				}
+				slide->addShape(std::move(shape));
 
 				skipWhitespace(jsonStr, pos);
-				if (jsonStr[pos] == ',') {
+				if (pos < jsonStr.length() && jsonStr[pos] == ',') {
 					pos++;
 				}
 			}
@@ -323,6 +344,10 @@ ShapePtr JsonSerializer::deserializeShape(const std::string& jsonStr, size_t& po
 
 	while (pos < jsonStr.length()) {
 		skipWhitespace(jsonStr, pos);
+
+		if (pos >= jsonStr.length()) {
+			break;
+		}
 
 		if (jsonStr[pos] == '}') {
 			pos++;
@@ -371,7 +396,7 @@ ShapePtr JsonSerializer::deserializeShape(const std::string& jsonStr, size_t& po
 		}
 
 		skipWhitespace(jsonStr, pos);
-		if (jsonStr[pos] == ',') {
+		if (pos < jsonStr.length() && jsonStr[pos] == ',') {
 			pos++;
 		}
 	}
@@ -403,6 +428,10 @@ Point JsonSerializer::deserializePoint(const std::string& jsonStr, size_t& pos)
 	while (pos < jsonStr.length()) {
 		skipWhitespace(jsonStr, pos);
 
+		if (pos >= jsonStr.length()) {
+			break;
+		}
+
 		if (jsonStr[pos] == '}') {
 			pos++;
 			break;
@@ -425,7 +454,7 @@ Point JsonSerializer::deserializePoint(const std::string& jsonStr, size_t& pos)
 		}
 
 		skipWhitespace(jsonStr, pos);
-		if (jsonStr[pos] == ',') {
+		if (pos < jsonStr.length() && jsonStr[pos] == ',') {
 			pos++;
 		}
 	}

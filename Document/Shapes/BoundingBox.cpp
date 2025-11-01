@@ -1,5 +1,7 @@
 #include "BoundingBox.h"
 
+using namespace document::shapes;
+
 Point BoundingBox::getTopLeft() const
 {
 	return topLeft;

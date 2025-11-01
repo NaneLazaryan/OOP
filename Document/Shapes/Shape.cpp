@@ -1,5 +1,7 @@
 #include "Shape.h"
 
+using namespace document::shapes;
+
 // ----------------------- Circle -----------------------
 void Circle::draw()
 {

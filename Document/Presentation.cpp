@@ -1,6 +1,8 @@
 #include "Presentation.h"
 #include <stdexcept>
 
+using namespace document;
+
 void Presentation::addSlide(size_t pos, SlidePtr newSlide)
 {
 	slides.insert(slides.begin() + pos, std::move(newSlide));
@@ -21,8 +23,6 @@ SlidePtr Presentation::getSlide(size_t pos) const
 
 const SlideList& Presentation::getSlides() const
 {
-	/*if (slides.empty())
-		throw std::out_of_range("Presentation has no slides.");*/
 	return slides;
 }
 

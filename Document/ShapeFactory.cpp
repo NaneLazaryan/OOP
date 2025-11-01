@@ -1,5 +1,8 @@
 #include "ShapeFactory.h"
 
+using namespace document;
+using namespace document::shapes;
+
 ShapeFactory::ShapeFactory()
 {
 	registerShape("Circle", []() { return std::make_unique<Circle>(); });
@@ -36,7 +39,7 @@ std::unique_ptr<IShape> ShapeFactory::createShape(const std::string& typeName)
 	{
 		return it->second();
 	}
-	throw std::invalid_argument("Unknown shape type: " + typeName);
+	throw std::invalid_argument("Unknown shape type: " + typeName); 
 }
 
 // Create with some arguments

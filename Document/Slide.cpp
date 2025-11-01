@@ -1,5 +1,8 @@
 #include "Slide.h"
 
+using namespace document;
+using namespace document::shapes;
+
 void Slide::addShape(ShapePtr shape)
 {
 	objects.push_back(std::move(shape));

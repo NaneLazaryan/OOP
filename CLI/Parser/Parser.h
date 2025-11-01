@@ -5,49 +5,56 @@
 #include <vector>
 #include "Command.h"
 
+static constexpr size_t MAX_STATES = 20;
+static constexpr size_t MAX_TOKEN_TYPES = 20;
 
-enum class State {
-	START,				// beginning
-	ACTION,				// saw a verb (add/remove/edit/set)
-	TARGET,				// saw an object (slide/title/shape/bullet)
-	ARGUMENTS,			// collecting args like numbers or strings
-	EXPECTING_VALUE,	// saw a flag, expecting its value next
-	DONE,				// command successfully parsed
-	ERROR				// invalid sequence
-};
+using namespace cli::cmd;
 
-class Parser
+namespace cli
 {
-public:
-	Parser(std::istream& stream);
-	
-	CommandPtr parse();
-private:
-	Tokenizer tokenizer;
-	Token currentToken;
-	Token previousToken;
-	State currentState = State::START;
-	State transitionTable[20][20];
+	enum class State {
+		START,				// beginning
+		ACTION,				// saw a verb (add/remove/edit/set)
+		TARGET,				// saw an object (slide/title/shape/bullet)
+		ARGUMENTS,			// collecting args like numbers or strings
+		EXPECTING_VALUE,	// saw a flag, expecting its value next
+		DONE,				// command successfully parsed
+		ERROR				// invalid sequence
+	};
 
-	std::string currentFlagName;
-	ArgType expectedValueType;
+	class Parser
+	{
+	public:
+		Parser(std::istream& stream);
 
-private:
-	void initializeTransitionTable();
-	void validateToken(const Token& token);
+		CommandPtr parse();
+	private:
+		Tokenizer tokenizer;
+		Token currentToken;
+		Token previousToken;
+		State currentState = State::START;
+		State transitionTable[MAX_STATES][MAX_TOKEN_TYPES];
 
-	Token nextToken();
+		std::string currentFlagName;
+		ArgType expectedValueType;
 
-	void processToken(Token token, CommandPtr& cmd);
+	private:
+		void initializeTransitionTable();
+		void validateToken(const Token& token);
 
-	// State-specific processors
-	void processStartState(const Token& token);
-	void processActionState(const Token& token, CommandPtr& cmd);
-	void processArgumentsState(const Token& token, CommandPtr& cmd);
-	void processExpectingValueState(const Token& token, CommandPtr& cmd);
+		Token nextToken();
 
-	// Helpers
-	bool isArgumentFlag(const Token& token) const;
-	ArgType determineExpectedType(Keyword flag) const;
-	ArgumentPtr createArgument(const Token& token, ArgType expectedType);
-};
+		void processToken(Token token, CommandPtr& cmd);
+
+		// State-specific processors
+		void processStartState(const Token& token);
+		void processActionState(const Token& token, CommandPtr& cmd);
+		void processArgumentsState(const Token& token, CommandPtr& cmd);
+		void processExpectingValueState(const Token& token, CommandPtr& cmd);
+
+		// Helpers
+		bool isArgumentFlag(const Token& token) const;
+		ArgType determineExpectedType(Keyword flag) const;
+		ArgumentPtr createArgument(const Token& token, ArgType expectedType);
+	};
+}

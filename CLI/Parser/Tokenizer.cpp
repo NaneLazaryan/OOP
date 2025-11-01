@@ -2,6 +2,8 @@
 #include <unordered_map>
 #include <algorithm>
 
+using namespace cli;
+
 std::unordered_map<std::string, Keyword> keywords{
 	{"add", Keyword::ADD},
 	{"remove", Keyword::REMOVE},

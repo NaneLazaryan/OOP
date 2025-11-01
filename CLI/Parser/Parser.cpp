@@ -4,6 +4,9 @@
 #include "Argument.h"
 #include "CommandFactory.h"
 
+using namespace cli;
+using namespace cli::cmd;
+
 Parser::Parser(std::istream& stream) 
 	: tokenizer(stream), 
 	currentToken({ TokenType::UNKNOWN,"", Keyword::UNKNOWN }), 
@@ -16,8 +19,8 @@ Parser::Parser(std::istream& stream)
 
 void Parser::initializeTransitionTable()
 {
-	for (size_t i = 0; i < 20; i++)
-		for (size_t j = 0; j < 20; j++)
+	for (size_t i = 0; i < MAX_STATES; i++)
+		for (size_t j = 0; j < MAX_TOKEN_TYPES; j++)
 			transitionTable[i][j] = State::ERROR;
 
 	// Valid state transitions
@@ -82,11 +85,19 @@ CommandPtr Parser::parse()
 void Parser::processToken(Token token, CommandPtr& cmd) {
 	validateToken(token);
 
-	State next = transitionTable[(int)currentState][(int)token.name];
+	State next = State::ERROR;
+
+	// Determine next state
+	if ((currentState == State::ARGUMENTS || currentState == State::TARGET) && isArgumentFlag(token)) {
+		next = State::EXPECTING_VALUE;
+	}
+	else {
+		next = transitionTable[(int)currentState][(int)token.name];
+	}
 
 	if (next == State::ERROR) {
 		currentState = State::ERROR;
-		throw std::invalid_argument("Invalid Command!");
+		throw std::invalid_argument("Invalid command!");
 	}
 
 	// Process tokens based on current state
@@ -99,6 +110,11 @@ void Parser::processToken(Token token, CommandPtr& cmd) {
 		processActionState(token,cmd);
 		break;
 	case State::TARGET:
+		if (!cmd) {
+			throw std::invalid_argument("Command not properly initialized");
+		}
+		processArgumentsState(token, cmd);
+		break;
 	case State::ARGUMENTS:
 		processArgumentsState(token, cmd);
 		break;
@@ -146,10 +162,9 @@ void Parser::processArgumentsState(const Token& token, CommandPtr& cmd)
 
 	// Check for -at, -type, ....
 	if (isArgumentFlag(token)) {
-		currentFlagName = token.value;
-		expectedValueType = determineExpectedType(token.keyword);
+		currentFlagName = token.value;  
+		expectedValueType = determineExpectedType(token.keyword); 
 
-		currentState = State::EXPECTING_VALUE;
 		return;
 	}
 
@@ -167,8 +182,8 @@ void Parser::processArgumentsState(const Token& token, CommandPtr& cmd)
 		arg = std::make_unique<Argument>(ArgType::NUMBER, std::stof(token.value));
 		break;
 	case TokenType::SYMBOL:
-		argName = "symbol";
-		arg = std::make_unique<Argument>(ArgType::STRING, std::string(token.value));
+		// argName = "symbol";
+		// arg = std::make_unique<Argument>(ArgType::STRING, std::string(token.value));
 		break;
 	default:
 		break;
@@ -257,4 +272,6 @@ ArgumentPtr Parser::createArgument(const Token& token, ArgType expectedType)
 	catch (const std::exception& ex) {
 		throw std::invalid_argument(std::string("Failed to parse argument value: ") + ex.what());
 	}
+
+	throw std::invalid_argument("Type mismatch: expected " + std::to_string((int)expectedType) + " but got token type " + std::to_string((int)token.name));
 }

@@ -47,10 +47,11 @@ It is a simplified, lightweight alternative to GUI-based presentation tool like 
 ├── ShapeFactory       # Factory for shape creation
 ├── Presentation       # Presentation model
 ├── Slide              # Slide model
-└── Shapes             # Shape hierarchy
-    ├── Circle
-    ├── Rectangle
-    └── Text
+├── Shapes             # Shape hierarchy
+|   ├── Circle
+|   ├── Rectangle
+|   └── Text
+└── JsonSerializer     #  JSON serializer for save and load files
 ```
 
 ## 🎓 Command Quick Reference
@@ -61,6 +62,8 @@ It is a simplified, lightweight alternative to GUI-based presentation tool like 
 | Add Shape | add shape -type type -at slide | Add shape to slide |
 | Remove Shape | remove shape -at slide | Remove shape | 
 | Set Title | set title -text "text" | Set presentation title |
+| Save | save "filename" | Save presentation to JSON file |
+| Load | load "filename" | Load presentation from JSON file |
 | Exit | exit | Quit application |
 
 ## 💡 Usage Examples
@@ -79,6 +82,8 @@ add slide                              # Slide 2
 # Add content
 set title "Project Overview"
 add shape -type text -at 0
-add shape -type "rectangle" -at 1 -pos 50,100
-add shape -type "circle" -at 2 -pos 200,150
+add shape -type "Rectangle" -at 1 -pos 50,100
+add shape -type "Circle" -at 2 -pos 200,150
+save "Presentation"
+load "Presentation"
 ```

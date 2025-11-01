@@ -56,10 +56,11 @@ It is a simplified, lightweight alternative to GUI-based presentation tool like 
 ## 🎓 Command Quick Reference
 | Command | Syntax | Description |
 | ---------|----------------------|------------------|
-| Add Slide | add slide [-at <pos>]|  Create new slide |
-| Remove Slide | remove slide -at <pos> | Delete slide |
-| Add Shape | add shape -type <type> -at <slide> | Add shape to slide |
-| Remove Shape |remove shape -at <slide>Remove shape | Set Titleset title "text"Set presentation title |
+| Add Slide | add slide -at pos|  Create new slide |
+| Remove Slide | remove slide -at pos | Delete slide |
+| Add Shape | add shape -type type -at slide | Add shape to slide |
+| Remove Shape | remove shape -at slide | Remove shape | 
+| Set Title | set title "text" | Set presentation title |
 | Exit | exit | Quit application |
 
 ## 💡 Usage Examples
@@ -68,7 +69,7 @@ When you run the program, you’ll be presented with the following interface:
  Presentation Editor Ready. Enter commands (or 'exit' to quit):
 ```
 Commands follow this general pattern:
-> <ACTION> <TARGET> [OPTIONS]
+> ACTION TARGET [OPTIONS]
 ```
 # Create presentation structure
 add slide                              # Slide 0

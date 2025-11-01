@@ -5,3 +5,5 @@
 #include "RemoveShapeCommand.h"
 #include "RemoveSlideCommand.h"
 #include "SetTitleCommand.h"
+#include "LoadCommand.h"
+#include "SaveCommand.h"

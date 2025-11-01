@@ -14,7 +14,7 @@ namespace cli::cmd
 
 		void execute(Presentation& pres) override
 		{
-			std::cout << "\nAdd Slide execution\n";
+			std::cout << "\nExecuting Add Slide command\n";
 
 			size_t pos = pres.getSlideCount();
 

@@ -14,7 +14,7 @@ namespace cli::cmd
 
         void execute(Presentation& pres) override
         {
-            std::cout << "\nRemove Slide execution\n";
+            std::cout << "\nExecuting Remove Slide command\n";
 
             if (pres.getSlideCount() == 0)
                 throw std::runtime_error("No slide to remove");

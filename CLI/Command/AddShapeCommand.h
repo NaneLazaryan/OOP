@@ -36,14 +36,13 @@ namespace cli::cmd
 				throw std::out_of_range("Slide index " + std::to_string(slideId) + " out of range. Total slides: " + std::to_string(pres.getSlideCount()));
 
 			// Get shape type (default rectangle)
-			std::string shapeType = "rectangle";
+			std::string shapeType = "Rectangle";
 			if (hasArgument("type")) {
 				const Argument* arg = getArgument("type");
 				if (arg && arg->hasValue() && arg->isString()) {
 					shapeType = arg->getStrValue();
 				}
 			}
-			std::cout << shapeType << std::endl;
 
 			// Get position for shape (default 0,0)
 			float x = 0.0f, y = 0.0f;

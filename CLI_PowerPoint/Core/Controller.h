@@ -20,8 +20,8 @@ namespace cli
 
 		void handleError(const std::string& message);
 	private:
-		CommandRegister m_registry;
-		editing::Editor m_editor;
+		CommandRegister& m_registry;
+		editing::Editor& m_editor;
 		bool m_exit;
 	};
 }

@@ -19,7 +19,10 @@ std::unordered_map<std::string, Keyword> keywords{
 	{"-pos", Keyword::POS},
 	{"-text", Keyword::TEXT},
 	{"load", Keyword::LOAD},
-	{"save", Keyword::SAVE}
+	{"save", Keyword::SAVE},
+	{"undo", Keyword::UNDO},
+	{"redo", Keyword::REDO},
+	{"-color", Keyword::COLOR}
 };
 
 bool Tokenizer::fillBuffer()

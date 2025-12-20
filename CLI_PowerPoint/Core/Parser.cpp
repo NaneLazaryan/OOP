@@ -193,9 +193,6 @@ cmd::CommandPtr Parser::parse()
 			}
 		}
 		parsedArgs[flagPair.first] = convertTokenToArgValue(flagPair.second, flagType);
-
-		//ArgValue argValue = convertTokenToArgValue(flagPair.second, flagType);
-		//cmdCreator->addArgument(flagPair.first, argValue);
 	}
 
 	// Add all arguments to CommandCreator
@@ -207,10 +204,6 @@ cmd::CommandPtr Parser::parse()
 			}
 		}
 		parsedArgs["$" + std::to_string(i)] = convertTokenToArgValue(args[i], argType);
-
-		//ArgValue argValue = convertTokenToArgValue(args[i], argType);
-		//// Use index as key for positional arguments  ??????????????????????????????????????
-		//cmdCreator->addArgument("arg" + std::to_string(i), argValue);
 	}
 
 	return cmdCreator->createCommand(parsedArgs);

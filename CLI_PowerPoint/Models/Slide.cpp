@@ -33,14 +33,32 @@ IObject& Slide::getShape(size_t pos)
     return *m_objects[pos];
 }
 
-bool Slide::moveShape(int x, int y)
+bool Slide::moveShape(const std::string& name, int x, int y)
 {
-    // TODO: Implement
-    return false;
+    for (auto& obj : m_objects) {
+        if (obj->getName() == name) {
+            utility::Geometry geom = shapes::utility::move(obj->getGeometry(), x, y);
+
+            obj->setGeometry(geom);
+            return true;
+        }
+    }
+    return false; // shape not found
 }
 
-bool Slide::resizeShape(int width, int height)
+bool Slide::resizeShape(const std::string& name, int width, int height)
 {
-    // TODO: Implement
-    return false;
+    if (width <= 0 || height <= 0) {
+        return false;
+    }
+
+    for (auto& obj : m_objects) {
+        if (obj->getName() == name) {
+            utility::Geometry geom = shapes::utility::resize(obj->getGeometry(), width, height);
+
+            obj->setGeometry(geom);
+            return true;
+        }
+    }
+    return false; // shape not found
 }

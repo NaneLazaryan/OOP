@@ -33,12 +33,10 @@ namespace document
         const IObject& getShape(size_t pos) const;
         IObject& getShape(size_t pos);
 
-        bool moveShape(int x, int y);
-        bool resizeShape(int width, int height);
+        bool moveShape(const std::string& name, int x, int y);
+        bool resizeShape(const std::string& name, int width, int height);
 
         void setId(int id) { m_id = id; }
-
-        //std::string toString() const;
 
     private:
         int m_id;

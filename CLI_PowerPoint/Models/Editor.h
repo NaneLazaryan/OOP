@@ -4,7 +4,6 @@
 #include <stack>
 #include "../Core/action/IAction.h"
 #include "Presentation.h"
-#include "../Core/action/IAction.h"
 
 namespace editing
 {
@@ -12,6 +11,9 @@ namespace editing
 	{
 	public:
 		Editor(document::Presentation& presentation) : m_presentation(presentation) {}
+
+		Editor(const Editor&) = delete;
+		Editor& operator=(const Editor&) = delete;
 
 		void doAction(std::unique_ptr<IAction> action);
 		void undo();
@@ -23,6 +25,6 @@ namespace editing
 	private:
 		std::stack<std::unique_ptr<IAction>> m_undoStack;
 		std::stack<std::unique_ptr<IAction>> m_redoStack;
-		document::Presentation m_presentation;
+		document::Presentation& m_presentation;
 	};
 }

@@ -97,12 +97,12 @@ CLI_PowerPoint/
 
 ## 🎯 Design Patterns Used
 
-**Command Pattern:** All user actions are encapsulated as command objects
-**Factory Pattern**: Command creation and serializer/deserializer instantiation
-**Visitor Pattern**: Shape rendering using visitor pattern for extensibility
-**Strategy Pattern**: Different painter implementations (SVG, etc.)
-**Memento Pattern**: Undo/redo functionality through action inversion
-**Registry Pattern**: Command registration and lookup
+- **Command Pattern:** All user actions are encapsulated as command objects
+- **Factory Pattern**: Command creation and serializer/deserializer instantiation
+- **Visitor Pattern**: Shape rendering using visitor pattern for extensibility
+- **Strategy Pattern**: Different painter implementations (SVG, etc.)
+- **Memento Pattern**: Undo/redo functionality through action inversion
+- **Registry Pattern**: Command registration and lookup
 
 ## 🎓 Command Quick Reference
 | Command | Syntax | Description |

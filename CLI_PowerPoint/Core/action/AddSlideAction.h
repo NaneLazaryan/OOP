@@ -1,7 +1,6 @@
 #pragma once
 
 #include "IAction.h"
-#include "IAction.h"
 #include "../../Models/Slide.h"
 
 namespace editing
@@ -11,10 +10,14 @@ namespace editing
 	class AddSlideAction : public IAction
 	{
 	public:
-		AddSlideAction(size_t pos, std::shared_ptr<document::Slide> slide) 
+		AddSlideAction(size_t pos, std::shared_ptr<document::Slide> slide)
 			: m_pos(pos), m_slide(slide) {}
 
-		void doAction(document::Presentation& presentation);
+		void doAction(document::Presentation& presentation)
+		{
+			presentation.addSlide(m_pos, m_slide);
+		}
+
 		std::unique_ptr<IAction> createInverse();
 
 	private:

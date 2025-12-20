@@ -34,25 +34,75 @@ It is a simplified, lightweight alternative to GUI-based presentation tool like 
 
  ## 🏗️ Architecture
 ```
-├── Controller          # Main application controller
-├── Parser              # DFA-based command parser
-├── Tokenizer          # Lexical analyzer
-├── CommandFactory     # Factory for command creation
-├── Commands           # Command pattern implementations
-│   ├── AddSlideCommand
-│   ├── AddShapeCommand
-│   ├── RemoveSlideCommand
-│   ├── RemoveShapeCommand
-│   └── SetTitleCommand
-├── ShapeFactory       # Factory for shape creation
-├── Presentation       # Presentation model
-├── Slide              # Slide model
-├── Shapes             # Shape hierarchy
-|   ├── Circle
-|   ├── Rectangle
-|   └── Text
-└── JsonSerializer     #  JSON serializer for save and load files
+CLI_PowerPoint/
+├── Models/                    # Domain models
+│   ├── Presentation.h/cpp    # Main presentation container
+│   ├── Slide.h/cpp           # Individual slide management
+│   ├── Editor.h/cpp          # Edit operations with undo/redo
+│   ├── IObject.h             # Shape interface
+│   ├── Object.h              # Base shape implementation
+│   ├── objects/              # Concrete shape implementations
+│   │   ├── Circle.h/cpp
+│   │   ├── Rectangle.h/cpp
+│   │   ├── Text.h/cpp
+│   │   └── Image.h/cpp
+│   └── utility/              # Helper classes
+│       ├── Geometry.h/cpp    # Position and size
+│       ├── Color.h           # Color representation
+│       └── Border.h          # Border styling
+│
+├── Core/                      # Core application logic
+│   ├── Controller.h/cpp      # Main application controller
+│   ├── Parser.h/cpp          # Command parsing
+│   ├── Tokenizer.h/cpp       # Lexical analysis
+│   ├── CommandRegister.h/cpp # Command registry
+│   ├── action/               # Action pattern for undo/redo
+│   │   ├── IAction.h
+│   │   ├── AddSlideAction.h/cpp
+│   │   ├── RemoveSlideAction.h/cpp
+│   │   ├── AddShapeAction.h/cpp
+│   │   └── RemoveShapeAction.h/cpp
+│   └── vizualization/        # Rendering system
+│       ├── IPainter.h
+│       ├── SVGPainter.h/cpp
+│       ├── IVisitor.h
+│       ├── DrawingVisitor.h/cpp
+│       └── PresentationDrawer.h/cpp
+│
+├── Commands/                  # Command implementations
+│   ├── Command.h             # Command interface
+│   ├── AddSlideCommand.h/cpp
+│   ├── RemoveSlideCommand.h/cpp
+│   ├── AddShapeCommand.h/cpp
+│   ├── RemoveShapeCommand.h/cpp
+│   ├── SaveCommand.h/cpp
+│   ├── LoadCommand.h/cpp
+│   ├── RenderCommand.h/cpp
+│   ├── UndoCommand.h
+│   ├── RedoCommand.h
+│   └── factory/              # Command creation
+│       ├── ICmdCreator.h
+│       ├── AddSlideCreator.h
+│       ├── RemoveSlideCreator.h
+│       ├── AddShapeCreator.h
+│       └── ...
+│
+└── Serialization/            # File I/O
+    ├── ISerializer.h
+    ├── IDeserializer.h
+    ├── JsonSerializer.h/cpp
+    ├── JsonDeserializer.h/cpp
+    └── SerializerFactory.h/cpp
 ```
+
+## 🎯 Design Patterns Used
+
+**Command Pattern:** All user actions are encapsulated as command objects
+**Factory Pattern**: Command creation and serializer/deserializer instantiation
+**Visitor Pattern**: Shape rendering using visitor pattern for extensibility
+**Strategy Pattern**: Different painter implementations (SVG, etc.)
+**Memento Pattern**: Undo/redo functionality through action inversion
+**Registry Pattern**: Command registration and lookup
 
 ## 🎓 Command Quick Reference
 | Command | Syntax | Description |
@@ -72,18 +122,35 @@ When you run the program, you’ll be presented with the following interface:
  Presentation Editor Ready. Enter commands (or 'exit' to quit):
 ```
 Commands follow this general pattern:
-> ACTION TARGET [OPTIONS]
+> <action> [object] [flags] [positional arguments]
 ```
-# Create presentation structure
-add slide                              # Slide 0
-add slide                              # Slide 1
-add slide                              # Slide 2
+# Add a new slide at position 0
+> add slide -at 0
 
-# Add content
-set title "Project Overview"
-add shape -type text -at 0
-add shape -type "Rectangle" -at 1 -pos 50,100
-add shape -type "Circle" -at 2 -pos 200,150
-save "Presentation"
-load "Presentation"
+# Add a slide at the end (default position)
+> add slide
+
+# Remove a slide at position 1
+> remove slide -at 1
+
+# Add a red circle
+> add shape -slide 0 -type circle -x 100 -y 100 -width 50 -height 50 -color red
+
+# Add text
+> add shape -slide 0 -type text -x 50 -y 50 -width 200 -height 30 -color white
+
+# Save presentation
+> save presentation.json
+
+# Load presentation
+> load presentation.json
+
+# Render to file
+> render output.svg
+
+# Undo last action
+> undo
+
+# Redo undone action
+> redo
 ```

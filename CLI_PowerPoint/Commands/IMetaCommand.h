@@ -18,29 +18,34 @@ namespace cli::cmd
 	class IMetaCommand
 	{
 	public:
-		//virtual std::string getDescription() = 0;
+		virtual ~IMetaCommand() = default;
+		virtual std::string getName() const = 0;
+		virtual std::string getDescription() const = 0;
+		virtual const std::vector<ArgumentInfo>& getArguments() const = 0;
 		virtual factory::CommandCreatorPtr getCreator() = 0;
 	};
 
 	class MetaCommand : public IMetaCommand
 	{
 	public:
-		MetaCommand(const std::string& name, factory::CommandCreatorPtr creator)
-			: cmdName(name), creator(creator) {}
+		MetaCommand(const std::string& name,const std::string& description, factory::CommandCreatorPtr creator)
+			: m_name(name), m_description(description), m_creator(creator) {}
 
-		factory::CommandCreatorPtr getCreator()
-		{
-			return creator;
-		}
+		// Getters
+		std::string getName() const { return m_name; }
+		std::string getDescription() const { return m_description; }
+		const std::vector<ArgumentInfo>& getArguments() const { return m_arguments; }
+		factory::CommandCreatorPtr getCreator() { return m_creator; }
 
-		const std::vector<ArgumentInfo>& getArguments() const
+		void addArgument(const ArgumentInfo& arg)
 		{
-			return arguments;
+			m_arguments.push_back(arg);
 		}
 
 	private:
-		std::string cmdName;
-		factory::CommandCreatorPtr creator;
-		std::vector<ArgumentInfo> arguments;
+		std::string m_name;
+		std::string m_description;
+		factory::CommandCreatorPtr m_creator;
+		std::vector<ArgumentInfo> m_arguments;
 	};
 }

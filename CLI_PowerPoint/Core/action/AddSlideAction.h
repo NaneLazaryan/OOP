@@ -15,6 +15,10 @@ namespace editing
 
 		void doAction(document::Presentation& presentation)
 		{
+			size_t slideCount = presentation.getSlideCount();
+			if (m_pos > slideCount) {
+				m_pos = slideCount;
+			}
 			presentation.addSlide(m_pos, m_slide);
 		}
 

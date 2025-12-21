@@ -15,7 +15,7 @@ namespace editing
 
 		void doAction(document::Presentation& presentation)
 		{
-			if (m_pos >= presentation.getSlideCount()) {
+			if (m_pos > presentation.getSlideCount()) {
 				throw std::out_of_range("Cannot remove slide: index out of range");
 			}
 

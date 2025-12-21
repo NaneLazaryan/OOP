@@ -11,19 +11,19 @@ namespace cli::cmd::factory
 		CommandPtr createCommand(const ArgMap& args)
 		{
 
-			int index = -1;
-
-			/*auto it1 = args.find("$0");
-			if (it1 != args.end()) {
-				index = std::get<int>(it1->second);
-			}*/
+			size_t index = 0;
 
 			auto it = args.find("-at");
-			if ( it != args.end()) {
-				index = std::get<int>(it->second);
+			if (it != args.end()) {
+				int temp = std::get<int>(it->second);
+				if (temp < 0) {
+					index = 0;
+				}
+				else {
+					index = static_cast<size_t>(temp);
+				}
 			}
 
-			if (index < 0) index = 0;
 
 			return std::make_unique<AddSlideCommand>(index);
 		}

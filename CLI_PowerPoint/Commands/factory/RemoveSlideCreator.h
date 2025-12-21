@@ -14,18 +14,16 @@ namespace cli::cmd::factory
             size_t pos = 0;
 
             // Try to get position from -at flag
-            auto it = args.find("-at");
-            if (it != args.end()) {
-                pos = std::get<int>(it->second);
-            }
-
-            //else {
-            //    // Try to get from first positional argument
-            //    auto it0 = args.find("$0");
-            //    if (it0 != args.end()) {
-            //        pos = std::get<int>(it0->second);
-            //    }
-            //}
+			auto it = args.find("-at");
+			if (it != args.end()) {
+				int temp = std::get<int>(it->second);
+				if (temp < 0) {
+					pos = 0;
+				}
+				else {
+					pos = static_cast<size_t>(temp);
+				}
+			}
 
             return std::make_unique<RemoveSlideCommand>(pos);
 		}

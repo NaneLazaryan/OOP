@@ -24,37 +24,31 @@ void Parser::initializeTransitionTable()
 			transitionTable[i][j] = State::ERROR;
 
 	// Valid state transitions
-	transitionTable[(int)State::START][(int)TokenType::KEYWORD] = State::ACTION;
+	transitionTable[(int)State::START][(int)TokenType::IDENTIFIER] = State::COMMAND;
 
-	transitionTable[(int)State::ACTION][(int)TokenType::KEYWORD] = State::TARGET;
-	transitionTable[(int)State::ACTION][(int)TokenType::STRING] = State::ARGUMENTS;
-	transitionTable[(int)State::ACTION][(int)TokenType::END_OF_LINE] = State::DONE;
-
-	transitionTable[(int)State::TARGET][(int)TokenType::NUMBER] = State::ARGUMENTS;
-	transitionTable[(int)State::TARGET][(int)TokenType::STRING] = State::ARGUMENTS;
-	transitionTable[(int)State::TARGET][(int)TokenType::KEYWORD] = State::ARGUMENTS;
-	transitionTable[(int)State::TARGET][(int)TokenType::END_OF_LINE] = State::DONE;
+	transitionTable[(int)State::COMMAND][(int)TokenType::IDENTIFIER] = State::COMMAND;
+	transitionTable[(int)State::COMMAND][(int)TokenType::NUMBER] = State::ARGUMENTS;
+	transitionTable[(int)State::COMMAND][(int)TokenType::STRING] = State::ARGUMENTS;
+	transitionTable[(int)State::COMMAND][(int)TokenType::END_OF_LINE] = State::DONE;
 
 	// Collecting arguments
 	transitionTable[(int)State::ARGUMENTS][(int)TokenType::NUMBER] = State::ARGUMENTS;
 	transitionTable[(int)State::ARGUMENTS][(int)TokenType::STRING] = State::ARGUMENTS;
-	transitionTable[(int)State::ARGUMENTS][(int)TokenType::KEYWORD] = State::ARGUMENTS;
+	transitionTable[(int)State::ARGUMENTS][(int)TokenType::IDENTIFIER] = State::ARGUMENTS;
 	transitionTable[(int)State::ARGUMENTS][(int)TokenType::SYMBOL] = State::ARGUMENTS;
 	transitionTable[(int)State::ARGUMENTS][(int)TokenType::END_OF_LINE] = State::DONE;
 
-	// Should see the value token
+	// Expecting value after a flag
 	transitionTable[(int)State::EXPECTING_VALUE][(int)TokenType::NUMBER] = State::ARGUMENTS;
 	transitionTable[(int)State::EXPECTING_VALUE][(int)TokenType::STRING] = State::ARGUMENTS;
-	transitionTable[(int)State::EXPECTING_VALUE][(int)TokenType::KEYWORD] = State::ARGUMENTS;
-
-	// Standalone commands (LOAD, SAVE)
-	transitionTable[(int)State::ACTION][(int)TokenType::STRING] = State::ARGUMENTS;
-	transitionTable[(int)State::ACTION][(int)TokenType::END_OF_LINE] = State::DONE;
+	transitionTable[(int)State::EXPECTING_VALUE][(int)TokenType::IDENTIFIER] = State::ARGUMENTS;
 }
 
 bool Parser::isArgumentFlag(const Token& token) const
 {
-	return token.name == TokenType::KEYWORD && !token.value.empty() && token.value[0] == '-';
+	return token.type == TokenType::IDENTIFIER &&
+		!token.value.empty() &&
+		token.value[0] == '-';
 }
 
 std::string Parser::toLower(const std::string& str) const
@@ -70,30 +64,64 @@ cmd::factory::ArgValue Parser::convertTokenToArgValue(const std::string& value, 
 	switch (type) {
 	case TokenType::NUMBER:
 		try {
-			int intVal = std::stoi(value);
+			// Check if it's a float
 			if (value.find('.') != std::string::npos) {
 				return static_cast<float>(std::stof(value));
 			}
-			return intVal;
+			// Otherwise treat as int
+			return std::stoi(value);
 		}
 		catch (...) {
 			return std::string(value);
 		}
 	case TokenType::STRING:
-		//return std::string(value);
-	case TokenType::KEYWORD:
-		//return std::string(value);
+	case TokenType::IDENTIFIER:
 	default:
 		return std::string(value);
 	}
+}
+
+std::string Parser::buildCommandName() const
+{
+	if (commandTokens.empty()) {
+		return "";
+	}
+
+	std::string cmdName = toLower(commandTokens[0]);
+	for (size_t i = 1; i < commandTokens.size(); ++i) {
+		cmdName += " " + toLower(commandTokens[i]);
+	}
+	return cmdName;
+}
+
+cmd::factory::CommandCreatorPtr Parser::findCommandCreator()
+{
+	// Try to find command with all tokens first
+	for (size_t numTokens = commandTokens.size(); numTokens > 0; --numTokens) {
+		std::string cmdName = toLower(commandTokens[0]);
+		for (size_t i = 1; i < numTokens; ++i) {
+			cmdName += " " + toLower(commandTokens[i]);
+		}
+
+		CommandCreatorPtr creator = cmdRegister.find(cmdName);
+		if (creator) {
+			// Move remaining tokens to arguments
+			for (size_t i = numTokens; i < commandTokens.size(); ++i) {
+				args.insert(args.begin(), commandTokens[i]);
+			}
+			commandTokens.resize(numTokens);
+			return creator;
+		}
+	}
+
+	return nullptr;
 }
 
 cmd::CommandPtr Parser::parse()
 {
 	// Reset state for new parsing
 	currentState = State::START;
-	cmd.clear();
-	object.clear();
+	commandTokens.clear();
 	flags.clear();
 	args.clear();
 	currentFlag.clear();
@@ -102,57 +130,60 @@ cmd::CommandPtr Parser::parse()
 	while (currentState != State::DONE && currentState != State::ERROR) {
 		Token tok = tokenizer.tokenize();
 
+		// Check for end of line
+		if (tok.type == TokenType::END_OF_LINE) {
+			currentState = State::DONE;
+			break;
+		}
+
+		// Handle flag detection
+		if ((currentState == State::COMMAND || currentState == State::ARGUMENTS) && isArgumentFlag(tok)) {
+			currentFlag = tok.value;
+			flags[currentFlag] = "";
+			currentState = State::EXPECTING_VALUE;
+			continue;
+		}
+
+		// If we're expecting a value, handle it directly
+		if (currentState == State::EXPECTING_VALUE) {
+			if (!currentFlag.empty()) {
+				flags[currentFlag] = tok.value;
+				currentFlag.clear();
+				currentState = State::ARGUMENTS;
+			}
+			continue;
+		}
+
+		// Check transition table for other states
 		int stateIdx = static_cast<int>(currentState);
-		int tokenIdx = static_cast<int>(tok.name);
+		int tokenIdx = static_cast<int>(tok.type);
 		State next = transitionTable[stateIdx][tokenIdx];
 
 		if (next == State::ERROR) {
 			errorMsg = "Unexpected token '" + tok.value + "' in state " + std::to_string(stateIdx);
 			throw std::invalid_argument(errorMsg);
-		}
-
-		// if we're in ARGUMENTS and see a flag, expect its value next
-		if (currentState == State::ARGUMENTS && isArgumentFlag(tok)) {
-			currentFlag = tok.value;
-			flags[currentFlag] = "";
-			currentState = State::EXPECTING_VALUE;
-			continue; // Process next token (flag's value)
-		}
+		}		
 
 		currentState = next;
 
 		switch (currentState) {
-		case State::ACTION:
-			if (tok.name == TokenType::KEYWORD) {
-				cmd = toLower(tok.value);
+		case State::COMMAND:
+			if (tok.type == TokenType::IDENTIFIER) {
+				commandTokens.push_back(tok.value);
 			}
 			break;
-
-		case State::TARGET:
-			if (tok.name == TokenType::KEYWORD) {
-				object = toLower(tok.value);
-			}
-			break;
-
 		case State::ARGUMENTS:
-			args.push_back(tok.value);
-			break;
-
-		case State::EXPECTING_VALUE:
-			if (!currentFlag.empty()) {
-				flags[currentFlag] = tok.value;
-				currentFlag.clear();
-				currentState = State::ARGUMENTS; // Return to arguments state
+			if (tok.type != TokenType::END_OF_LINE) {
+				args.push_back(tok.value);
 			}
 			break;
-
 		case State::DONE:
 			break;
 		default:
 			break;
 		}
 
-		if (tok.name == TokenType::END_OF_LINE) {
+		if (tok.type == TokenType::END_OF_LINE) {
 			break;
 		}
 	}
@@ -164,47 +195,44 @@ cmd::CommandPtr Parser::parse()
 		throw std::invalid_argument(errorMsg);
 	}
 
-	if (cmd.empty()) {
+	if (commandTokens.empty()) {
 		errorMsg = "No command found";
 		throw std::invalid_argument(errorMsg);
 	}
 
-	// Construct command name (add shape)
-	std::string cmdName = cmd;
-	if (!object.empty()) {
-		cmdName = cmd + " " + object;
-	}
-
 	// Get CommandCreator from register
-	CommandCreatorPtr cmdCreator = cmdRegister.find(cmdName);
+	CommandCreatorPtr cmdCreator = findCommandCreator();
 	if (!cmdCreator) {
-		errorMsg = "Unknown command: " + cmdName;
+		errorMsg = "Unknown command: " + buildCommandName();
 		throw std::invalid_argument(errorMsg);
 	}
 
 	ArgMap parsedArgs;
 
-	// Add all flags to CommandCreator
+	// Add all flags
 	for (const auto& flagPair : flags) {
-		TokenType flagType = TokenType::STRING; 
+		TokenType flagType = TokenType::STRING;
 		if (!flagPair.second.empty()) {
-			if (std::all_of(flagPair.second.begin(), flagPair.second.end(), ::isdigit)) {  // if all are digits
+			if (std::all_of(flagPair.second.begin(), flagPair.second.end(),
+				[](unsigned char c) { return std::isdigit(c) || c == '.' || c == '-'; })) {
 				flagType = TokenType::NUMBER;
 			}
 		}
 		parsedArgs[flagPair.first] = convertTokenToArgValue(flagPair.second, flagType);
 	}
 
-	// Add all arguments to CommandCreator
+	// Add positional arguments
 	for (size_t i = 0; i < args.size(); ++i) {
-		TokenType argType = TokenType::STRING; 
+		TokenType argType = TokenType::STRING;
 		if (!args[i].empty()) {
-			if (std::all_of(args[i].begin(), args[i].end(), ::isdigit)) {
+			if (std::all_of(args[i].begin(), args[i].end(),
+				[](unsigned char c) { return std::isdigit(c) || c == '.' || c == '-'; })) {
 				argType = TokenType::NUMBER;
 			}
 		}
 		parsedArgs["$" + std::to_string(i)] = convertTokenToArgValue(args[i], argType);
 	}
+
 
 	return cmdCreator->createCommand(parsedArgs);
 }

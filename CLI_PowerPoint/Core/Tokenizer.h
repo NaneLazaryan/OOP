@@ -7,7 +7,7 @@ namespace cli
 {
 	enum class TokenType
 	{
-		KEYWORD,     // CREATE, ADD, SET, SLIDE, TEXT, IMAGE, TITLE
+		IDENTIFIER,  // Any word (commands, flags, arguments)
 		NUMBER,
 		STRING,
 		SYMBOL,      // {}, (), ;
@@ -15,21 +15,10 @@ namespace cli
 		UNKNOWN
 	};
 
-	enum class Keyword
-	{
-		ADD, REMOVE, EDIT, SET, AT,
-		SLIDE, TITLE, BULLET, SHAPE,
-		CIRCLE, TYPE, POS, TEXT,
-		LOAD, SAVE, UNDO, REDO, 
-		COLOR, BORDER,
-		UNKNOWN
-	};
-
 	struct Token
 	{
-		TokenType name;
+		TokenType type;
 		std::string value;
-		Keyword keyword;
 	};
 
 
@@ -38,7 +27,6 @@ namespace cli
 	public:
 		Tokenizer(std::istream& input) : stream(input), buff_pos(0), buff_size(0) {}
 
-		Keyword lookupKeyword(const std::string& word);
 		Token tokenize();
 	private:
 		std::istream& stream;

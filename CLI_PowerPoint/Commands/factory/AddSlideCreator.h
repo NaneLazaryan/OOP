@@ -11,7 +11,7 @@ namespace cli::cmd::factory
 		CommandPtr createCommand(const ArgMap& args)
 		{
 
-			size_t index = -1;
+			int index = -1;
 
 			/*auto it1 = args.find("$0");
 			if (it1 != args.end()) {
@@ -22,6 +22,8 @@ namespace cli::cmd::factory
 			if ( it != args.end()) {
 				index = std::get<int>(it->second);
 			}
+
+			if (index < 0) index = 0;
 
 			return std::make_unique<AddSlideCommand>(index);
 		}

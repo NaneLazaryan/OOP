@@ -91,6 +91,8 @@ namespace cli::cmd::factory
                 return IObject::ObjectType::Text;
             else if (lower == "image")
                 return IObject::ObjectType::Image;
+            else if (lower == "line")
+                return IObject::ObjectType::Line;
             else
                 throw std::invalid_argument("Unknown shape type: " + typeStr);
         }
@@ -121,6 +123,17 @@ namespace cli::cmd::factory
             if (itHeight != args.end()) {
                 int height = std::get<int>(itHeight->second);
                 y2 = y1 + height;
+            }
+
+            // x2/y2 for lines
+            auto itX2 = args.find("-x2");
+            if (itX2 != args.end()) {
+                x2 = std::get<int>(itX2->second);
+            }
+
+            auto itY2 = args.find("-y2");
+            if (itY2 != args.end()) {
+                y2 = std::get<int>(itY2->second);
             }
 
             return Geometry(Point(x1, y1), Point(x2, y2));

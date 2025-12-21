@@ -22,9 +22,10 @@ void Editor::undo()
 	std::unique_ptr<IAction> action = std::move(m_undoStack.top());
 	m_undoStack.pop();
 
+	action->doAction(m_presentation);
 	// Inverse action for redo
 	std::unique_ptr<IAction> inverseAction = action->createInverse();
-	action->doAction(m_presentation);
+	
 
 	m_redoStack.push(std::move(inverseAction));
 }

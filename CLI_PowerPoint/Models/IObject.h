@@ -16,6 +16,7 @@ namespace document::shapes
         {
             Circle,
             Rectangle,
+            Line,
             Text,
             Image
         };

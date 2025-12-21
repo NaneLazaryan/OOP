@@ -37,9 +37,9 @@ void Editor::redo()
 	std::unique_ptr<IAction> action = std::move(m_redoStack.top());
 	m_redoStack.pop();
 
+	action->doAction(m_presentation);
 	// Inverse action for redo
 	std::unique_ptr<IAction> inverseAction = action->createInverse();
-	action->doAction(m_presentation);
 
 	m_undoStack.push(std::move(inverseAction));
 } 

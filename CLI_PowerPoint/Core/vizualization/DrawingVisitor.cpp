@@ -25,4 +25,9 @@ namespace vizualization
 	{
 		m_painter.drawImage(image);
 	}
+
+	void DrawingVisitor::visit(const document::shapes::Line& line)
+	{
+		m_painter.drawLine(line);
+	}
 }

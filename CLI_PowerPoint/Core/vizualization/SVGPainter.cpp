@@ -3,26 +3,26 @@
 
 namespace vizualization
 {
-	void SVGPainter::setPen(const Pen& pen)
+	void SVGPainter::drawLine(document::shapes::Line line)
 	{
-		m_pen = pen;
-	}
+		const auto& geometry = line.getGeometry();
+		const auto& start = geometry.getTopLeft();
+		const auto& end = geometry.getBottomRight();
+		const auto& color = line.getLineColor();
 
-	void SVGPainter::setBrush(const Brush& brush)
-	{
-		m_brush = brush;
-	}
-
-	void SVGPainter::drawLine(document::shapes::utility::Point a, document::shapes::utility::Point b)
-	{
 		std::ostringstream oss;
-		const auto& color = m_pen.getColor();
-		oss << "<line x1=\"" << a.x << "\" y1=\"" << a.y
-			<< "\" x2=\"" << b.x << "\" y2=\"" << b.y
+		oss << "<line x1=\"" << start.x << "\" y1=\"" << start.y
+			<< "\" x2=\"" << end.x << "\" y2=\"" << end.y
 			<< "\" stroke=\"rgb(" << static_cast<int>(color.getRed())
 			<< "," << static_cast<int>(color.getGreen())
 			<< "," << static_cast<int>(color.getBlue()) << ")\""
-			<< " stroke-width=\"" << m_pen.getThickness() << "\" />\n";
+			<< " stroke-width=\"" << line.getThickness() << "\"";
+
+		if (color.getAlpha() < 255) {
+			oss << " stroke-opacity=\"" << (color.getAlpha() / 255.0) << "\"";
+		}
+
+		oss << " />\n";
 		m_svgContent += oss.str();
 	}
 

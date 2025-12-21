@@ -6,6 +6,7 @@
 #include "../../Models/objects/Circle.h"
 #include "../../Models/objects/Text.h"
 #include "../../Models/objects/Image.h"
+#include "../../Models/objects/Line.h"
 
 namespace vizualization
 {
@@ -20,6 +21,7 @@ namespace vizualization
 		void visit(const document::shapes::Circle& circle);
 		void visit(const document::shapes::Text& text);
 		void visit(const document::shapes::Image& image);
+		void visit(const document::shapes::Line& line);
 
 	private:
 		IPainter& m_painter;

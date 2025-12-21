@@ -103,7 +103,7 @@ cmd::factory::CommandCreatorPtr Parser::findCommandCreator()
 			cmdName += " " + toLower(commandTokens[i]);
 		}
 
-		CommandCreatorPtr creator = cmdRegister.find(cmdName);
+		CommandCreatorPtr creator = cmdRegister.findCreator(cmdName);
 		if (creator) {
 			// Move remaining tokens to arguments
 			for (size_t i = numTokens; i < commandTokens.size(); ++i) {

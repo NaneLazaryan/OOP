@@ -53,7 +53,7 @@ void Controller::run()
 			handleError(std::string("Runtime error: ") + ex.what());
 		}
 		catch (const std::exception& ex) {
-			handleError(std::string("Error: ") + ex.what());
+			handleError( ex.what());
 		}
 	}
 }

@@ -9,6 +9,7 @@
 #include "../Commands/factory/UndoCreator.h"
 #include "../Commands/factory/RedoCreator.h"
 #include "../Commands/factory/HelpCreator.h"
+#include "../Commands/factory/ListCreator.h"
 #include "../Commands/IMetaCommand.h"
 
 using namespace cli;
@@ -40,7 +41,7 @@ void Application::registerCommands(CommandRegister& registry)
     // Add shape command
     auto addShapeCmd = std::make_shared<cmd::MetaCommand>(
         "add shape",
-        "Add a shape (circle, rectangle, text, image) to a slide",
+        "Add a shape (circle, rectangle, text, image, line) to a slide",
         std::make_shared<cmd::factory::AddShapeCreator>()
         );
     addShapeCmd->addArgument(ArgumentInfo("-slide", true, ""));
@@ -49,9 +50,14 @@ void Application::registerCommands(CommandRegister& registry)
     addShapeCmd->addArgument(ArgumentInfo("-y", false, "0"));
     addShapeCmd->addArgument(ArgumentInfo("-width", false, "100"));
     addShapeCmd->addArgument(ArgumentInfo("-height", false, "100"));
+    addShapeCmd->addArgument(ArgumentInfo("-x2", false, "for lines"));
+    addShapeCmd->addArgument(ArgumentInfo("-y2", false, "for lines"));
     addShapeCmd->addArgument(ArgumentInfo("-color", false, "white"));
     addShapeCmd->addArgument(ArgumentInfo("-border-color", false, "black"));
     addShapeCmd->addArgument(ArgumentInfo("-border-thickness", false, "1"));
+    addShapeCmd->addArgument(ArgumentInfo("-text", false, "required for text shapes"));
+    addShapeCmd->addArgument(ArgumentInfo("-text-color", false, "black"));
+    addShapeCmd->addArgument(ArgumentInfo("-path", false, "required for image shapes"));
     registry.registerCommand("add shape", addShapeCmd);
 
     // Remove slide command
@@ -116,6 +122,14 @@ void Application::registerCommands(CommandRegister& registry)
         std::make_shared<cmd::factory::RedoCreator>()
         );
     registry.registerCommand("redo", redoCmd);
+
+    // List command
+    auto listCmd = std::make_shared<cmd::MetaCommand>(
+        "list",
+        "Display the contents of the presentation",
+        std::make_shared<cmd::factory::ListCreator>()
+        );
+    registry.registerCommand("list", listCmd);
 
     // Help command
     auto helpCmd = std::make_shared<MetaCommand>(

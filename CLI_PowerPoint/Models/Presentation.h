@@ -18,6 +18,8 @@ namespace document
 		void addSlide(size_t pos, std::shared_ptr<Slide> slide);
 		void removeSlide(size_t pos);
 
+		void clear() { m_slides.clear(); }
+
 		Slide& getSlide(size_t pos);
 		const Slide& getSlide(size_t pos) const;
 		size_t getSlideCount() const;

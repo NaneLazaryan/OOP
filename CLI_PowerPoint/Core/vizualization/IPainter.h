@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Pen.h"
-#include "Brush.h"
 #include "../../Models/utility/Geometry.h"
 #include "../../Models/objects/Rectangle.h"
 #include "../../Models/objects/Circle.h"
@@ -15,10 +13,6 @@ namespace vizualization
 	public:
 		virtual ~IPainter() = default;
 
-		// Setters
-		virtual void setPen(const Pen& pen) = 0;
-		virtual void setBrush(const Brush& brush) = 0;
-
 		// Drawing
 		virtual void drawLine(document::shapes::utility::Point a, document::shapes::utility::Point b) = 0;
 		virtual void drawRectangle(document::shapes::Rectangle rect) = 0;
@@ -27,4 +21,5 @@ namespace vizualization
 		virtual void drawImage(document::shapes::Image image) = 0;
 		//virtual void drawEllipse() = 0;
 	};
+
 }

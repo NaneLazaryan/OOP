@@ -3,6 +3,7 @@
 #include "../Models/objects/Rectangle.h"
 #include "../Models/objects/Text.h"
 #include "../Models/objects/Image.h"
+#include "../Models/objects/Line.h"
 #include <fstream>
 #include <sstream>
 #include <iomanip>
@@ -111,6 +112,18 @@ std::string JsonSerializer::serializeShape(const shapes::IObject& shape, size_t 
                 << "\"a\": " << (int)borderColor.getAlpha() << "}, "
                 << "\"thickness\": " << border.getThickness() << ", "
                 << "\"visible\": " << (border.isVisible() ? "true" : "false") << "}";
+        }
+    }
+    else if (shape.getType() == IObject::ObjectType::Line) {
+        const Line* lineShape = dynamic_cast<const Line*>(&shape);
+        if (lineShape) {
+            const auto& color = lineShape->getLineColor();
+            oss << ",\n" << innerIndent << "\"color\": {"
+                << "\"r\": " << (int)color.getRed() << ", "
+                << "\"g\": " << (int)color.getGreen() << ", "
+                << "\"b\": " << (int)color.getBlue() << ", "
+                << "\"a\": " << (int)color.getAlpha() << "}";
+            oss << ",\n" << innerIndent << "\"thickness\": " << lineShape->getThickness();
         }
     }
     else if (shape.getType() == IObject::ObjectType::Text) {

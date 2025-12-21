@@ -3,6 +3,7 @@
 #include "../Models/objects/Rectangle.h"
 #include "../Models/objects/Text.h"
 #include "../Models/objects/Image.h"
+#include "../Models/objects/Line.h"
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
@@ -326,11 +327,15 @@ std::unique_ptr<IObject> JsonDeserializer::deserializeShape(const std::string& j
     Color fillColor = Color::White();
     Color textColor = Color::Black();
     Color backgroundColor = Color::Transparent();
+    Color lineColor = Color::Black();
     Border border;
     std::string text;
     std::string imagePath;
+    double thickness = 1.0;
     bool hasFill = false;
     bool hasBorderData = false;
+    bool hasLineColor = false;
+    bool hasThickness = false;
 
     while (true) {
         skipWhitespace(jsonStr, pos);
@@ -356,6 +361,14 @@ std::unique_ptr<IObject> JsonDeserializer::deserializeShape(const std::string& j
         }
         else if (key == "backgroundColor") {
             backgroundColor = parseColor(jsonStr, pos);
+        }
+        else if (key == "color") {
+            lineColor = parseColor(jsonStr, pos);
+            hasLineColor = true;
+        }
+        else if (key == "thickness") {
+            thickness = parseDouble(jsonStr, pos);
+            hasThickness = true;
         }
         else if (key == "border") {
             border = parseBorder(jsonStr, pos);
@@ -395,6 +408,12 @@ std::unique_ptr<IObject> JsonDeserializer::deserializeShape(const std::string& j
             return std::make_unique<Image>(geometry, imagePath, border);
         }
         return std::make_unique<Image>(geometry, imagePath);
+    }
+    else if (shapeType == "Line") {
+        if (hasLineColor && hasThickness) {
+            return std::make_unique<Line>(geometry, lineColor, thickness);
+        }
+        return std::make_unique<Line>(geometry);
     }
 
     return nullptr;

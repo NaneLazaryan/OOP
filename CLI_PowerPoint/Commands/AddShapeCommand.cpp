@@ -4,6 +4,7 @@
 #include "../Models/objects/Image.h"
 #include "../Models/objects/Rectangle.h"
 #include "../Models/objects/Text.h"
+#include "../Models/objects/Line.h"
 #include <stdexcept>
 
 using namespace cli::cmd;
@@ -38,6 +39,8 @@ std::unique_ptr<IObject> AddShapeCommand::createShape()
         return std::make_unique<Text>(m_geometry, "", m_fillColor, utility::Color::Transparent(), m_border);
     case IObject::ObjectType::Image:
         return std::make_unique<Image>(m_geometry, "", m_border);
+    case IObject::ObjectType::Line:
+        return std::make_unique<Line>(m_geometry, m_fillColor, m_border.getThickness());
     default:
         throw std::invalid_argument("Unknown shape type");
     }

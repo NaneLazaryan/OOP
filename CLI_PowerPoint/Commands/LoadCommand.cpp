@@ -23,6 +23,9 @@ void LoadCommand::execute(editing::Editor& editor)
     auto deserializer = serialization::SerializerFactory::createDeserializer(extension);
     document::Presentation& presentation = editor.getPresentation();
 
+    // Clear existing presentation 
+    presentation.clear();
+
     // Load the presentation
     bool success = deserializer->loadFromFile(presentation, m_filename);
 

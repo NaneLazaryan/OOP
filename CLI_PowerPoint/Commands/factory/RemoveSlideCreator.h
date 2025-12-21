@@ -10,7 +10,6 @@ namespace cli::cmd::factory
 	public:
 		CommandPtr createCommand(const ArgMap& args)
 		{
-
             size_t pos = 0;
 
             // Try to get position from -at flag

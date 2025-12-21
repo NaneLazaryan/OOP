@@ -12,9 +12,9 @@
 
 namespace cli::cmd::factory
 {
-	class AddShapeCreator : public ICmdCreator
-	{
-	public:
+    class AddShapeCreator : public ICmdCreator
+    {
+    public:
         CommandPtr createCommand(const ArgMap& args)
         {
             using namespace document::shapes;
@@ -24,9 +24,12 @@ namespace cli::cmd::factory
             utility::Geometry geometry;
             utility::Color fillColor = utility::Color::White();
             utility::Color borderColor = utility::Color::Black();
+            utility::Color textColor = utility::Color::Black();
             double borderThickness = 1.0;
-            bool hasBorder = false;
-            bool hasFill = false;
+            bool hasBorder = true;
+            bool hasFill = true;
+            std::string text = "";
+            std::string imagePath = "";
 
             // Get slide ID (required)
             auto itSlide = args.find("-slide");
@@ -50,28 +53,55 @@ namespace cli::cmd::factory
             // Get geometry
             geometry = getGeometry(args);
 
-            // Parse style attributes
+            // Parse fill color
             auto itColor = args.find("-color");
             if (itColor != args.end()) {
                 fillColor = getColor(std::get<std::string>(itColor->second));
-                hasFill = true;
             }
 
+            // Parse border
             auto itBorderColor = args.find("-border-color");
             if (itBorderColor != args.end()) {
                 borderColor = getColor(std::get<std::string>(itBorderColor->second));
-                hasBorder = true;
             }
 
             auto itBorderThickness = args.find("-border-thickness");
             if (itBorderThickness != args.end()) {
                 borderThickness = std::get<int>(itBorderThickness->second);
-                hasBorder = true;
+                if (borderThickness == 0) {
+                    hasBorder = false;
+                }
+            }
+
+            // Text-specific attributes
+            auto itText = args.find("-text");
+            if (itText != args.end()) {
+                text = std::get<std::string>(itText->second);
+            }
+
+            auto itTextColor = args.find("-text-color");
+            if (itTextColor != args.end()) {
+                textColor = getColor(std::get<std::string>(itTextColor->second));
+            }
+
+            // Image-specific attributes
+            auto itPath = args.find("-path");
+            if (itPath != args.end()) {
+                imagePath = std::get<std::string>(itPath->second);
             }
 
             utility::Border border(borderColor, borderThickness, hasBorder);
 
-            return std::make_unique<AddShapeCommand>(slideId, shapeType, geometry, fillColor, border);
+            return std::make_unique<AddShapeCommand>(
+                slideId,
+                shapeType,
+                geometry,
+                fillColor,
+                border,
+                text,
+                textColor,
+                imagePath
+                );
         }
 
     private:
@@ -118,14 +148,20 @@ namespace cli::cmd::factory
                 int width = std::get<int>(itWidth->second);
                 x2 = x1 + width;
             }
+            else {
+                x2 = x1 + 100;
+            }
 
             auto itHeight = args.find("-height");
             if (itHeight != args.end()) {
                 int height = std::get<int>(itHeight->second);
                 y2 = y1 + height;
             }
+            else {
+                y2 = y1 + 100;
+            }
 
-            // x2/y2 for lines
+            // x2/y2 for lines 
             auto itX2 = args.find("-x2");
             if (itX2 != args.end()) {
                 x2 = std::get<int>(itX2->second);
@@ -153,8 +189,13 @@ namespace cli::cmd::factory
             if (lower == "red") return Color::Red();
             if (lower == "green") return Color::Green();
             if (lower == "blue") return Color::Blue();
+            if (lower == "yellow") return Color(255, 255, 0);
+            if (lower == "cyan") return Color(0, 255, 255);
+            if (lower == "magenta") return Color(255, 0, 255);
+            if (lower == "gray" || lower == "grey") return Color(128, 128, 128);
+            if (lower == "transparent") return Color::Transparent();
 
-            // RGB format: "r,g,b" or "r,g,b,a"
+            // RGB format
             if (colorStr.find(',') != std::string::npos) {
                 std::istringstream iss(colorStr);
                 int r, g, b, a = 255;
@@ -167,8 +208,8 @@ namespace cli::cmd::factory
                 return Color(r, g, b);
             }
 
-            // Default to white
+            // Default to white 
             return Color::White();
         }
-	};
+    };
 }

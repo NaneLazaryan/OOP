@@ -32,6 +32,22 @@ namespace vizualization
 		}
 	}
 
+	void PresentationDrawer::drawSingleSlide(const document::Slide& slide)
+	{
+		// For SVG - draws a single slide
+		auto* svgPainter = dynamic_cast<SVGPainter*>(m_painter.get());
+		if (svgPainter) {
+			svgPainter->clear(); // Clear previous content
+			svgPainter->beginSVG(1920, 1080);
+		}
+
+		drawSlide(slide);
+
+		if (svgPainter) {
+			svgPainter->endSVG();
+		}
+	}
+
 	void PresentationDrawer::drawSlide(const document::Slide& slide)
 	{
 		// Draw all objects on the slide using visitor pattern

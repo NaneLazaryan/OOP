@@ -122,18 +122,18 @@ namespace vizualization
 		const auto& topLeft = geometry.getTopLeft();
 
 		int x = topLeft.x;
-		int y = topLeft.y;
+		int y = topLeft.y + 20; 
 
 		std::ostringstream oss;
 
-		// Draw background if present
+		// Draw background 
 		if (text.hasFillColor() && text.getFillColor().getAlpha() > 0) {
 			const auto& bgColor = text.getFillColor();
 			const auto& bottomRight = geometry.getBottomRight();
 			int width = bottomRight.x - topLeft.x;
 			int height = bottomRight.y - topLeft.y;
 
-			oss << "<rect x=\"" << x << "\" y=\"" << y
+			oss << "<rect x=\"" << topLeft.x << "\" y=\"" << topLeft.y
 				<< "\" width=\"" << width << "\" height=\"" << height
 				<< "\" fill=\"rgb(" << static_cast<int>(bgColor.getRed())
 				<< "," << static_cast<int>(bgColor.getGreen())
@@ -145,7 +145,7 @@ namespace vizualization
 			oss << " />\n";
 		}
 
-		// Draw text
+		// Draw text 
 		const auto& textColor = text.getTextColor();
 		oss << "<text x=\"" << x << "\" y=\"" << y
 			<< "\" fill=\"rgb(" << static_cast<int>(textColor.getRed())
@@ -156,20 +156,23 @@ namespace vizualization
 			oss << " fill-opacity=\"" << (textColor.getAlpha() / 255.0) << "\"";
 		}
 
-		// Escape XML special characters in text
+		oss << ">";
+
+		// Escape XML special characters in text content
 		std::string escapedText = text.getText();
-		for (size_t i = 0; i < escapedText.length(); ++i) {
-			switch (escapedText[i]) {
-			case '&': oss << "&amp;"; break;
-			case '<': oss << "&lt;"; break;
-			case '>': oss << "&gt;"; break;
-			case '"': oss << "&quot;"; break;
-			case '\'': oss << "&apos;"; break;
-			default: oss << escapedText[i]; break;
+		std::string result;
+		for (char c : escapedText) {
+			switch (c) {
+			case '&': result += "&amp;"; break;
+			case '<': result += "&lt;"; break;
+			case '>': result += "&gt;"; break;
+			case '"': result += "&quot;"; break;
+			case '\'': result += "&apos;"; break;
+			default: result += c; break;
 			}
 		}
 
-		oss << "</text>\n";
+		oss << result << "</text>\n";
 
 		// Draw border
 		if (text.hasBorder() && text.getBorder().isVisible()) {
@@ -180,7 +183,7 @@ namespace vizualization
 			int width = bottomRight.x - topLeft.x;
 			int height = bottomRight.y - topLeft.y;
 
-			oss << "<rect x=\"" << x << "\" y=\"" << y
+			oss << "<rect x=\"" << topLeft.x << "\" y=\"" << topLeft.y
 				<< "\" width=\"" << width << "\" height=\"" << height
 				<< "\" fill=\"none\""
 				<< " stroke=\"rgb(" << static_cast<int>(borderColor.getRed())

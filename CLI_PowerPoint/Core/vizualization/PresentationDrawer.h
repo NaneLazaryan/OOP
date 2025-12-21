@@ -14,6 +14,7 @@ namespace vizualization
 
 		void draw(const document::Presentation& presentation);
 		void drawSlide(const document::Slide& slide);
+		void drawSingleSlide(const document::Slide& slide);
 
 		// Get output (format-specific, e.g., SVG string)
 		std::string getOutput() const;

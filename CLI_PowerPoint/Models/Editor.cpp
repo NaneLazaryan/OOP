@@ -4,10 +4,10 @@ using namespace editing;
 
 void Editor::doAction(std::unique_ptr<IAction> action)
 {
+	action->doAction(m_presentation);
 	// Inverse action for undo
 	std::unique_ptr<IAction> inverseAction = action->createInverse();
-	action->doAction(m_presentation);
-
+	
 	m_undoStack.push(std::move(inverseAction));
 	
 	while (!m_redoStack.empty()) {

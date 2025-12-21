@@ -2,17 +2,10 @@
 #include "Presentation.h"
 #include <stdexcept>
 
-#include <iostream>
-
 using namespace document;
 
 void Presentation::addSlide(size_t pos, std::shared_ptr<Slide> slide)
 {
-    if (pos > m_slides.size()) {
-        pos = m_slides.size();
-    }
-
-    std::cout << "Presentation index: " << pos << std::endl;
     m_slides.insert(m_slides.begin() + pos, slide);
 }
 

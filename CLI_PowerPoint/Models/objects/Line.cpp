@@ -1,5 +1,5 @@
 #include "Line.h"
-#include "../../Core/vizualization/IVisitor.h"
+#include "../IObjectVisitor.h"
 
 namespace document::shapes
 {
@@ -25,7 +25,7 @@ namespace document::shapes
         return std::make_unique<Line>(m_geometry, m_lineColor, m_thickness);
     }
 
-    void Line::accept(vizualization::IVisitor& visitor) const
+    void Line::accept(IObjectVisitor& visitor) const
     {
         visitor.visit(*this);
     }

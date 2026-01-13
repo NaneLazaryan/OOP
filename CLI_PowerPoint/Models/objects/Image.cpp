@@ -1,5 +1,5 @@
 #include "Image.h"
-#include "../../Core/vizualization/IVisitor.h"
+#include "../IObjectVisitor.h"
 
 namespace document::shapes
 {
@@ -25,7 +25,7 @@ namespace document::shapes
         return std::make_unique<Image>(m_geometry, m_imagePath, m_border);
     }
 
-    void Image::accept(vizualization::IVisitor& visitor) const
+    void Image::accept(IObjectVisitor& visitor) const
     {
         visitor.visit(*this);
     }

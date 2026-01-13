@@ -1,5 +1,5 @@
 #include "Circle.h"
-#include "../../Core/vizualization/IVisitor.h"
+#include "../IObjectVisitor.h"
 
 namespace document::shapes
 {
@@ -25,7 +25,7 @@ namespace document::shapes
         return std::make_unique<Circle>(m_geometry, m_fillColor, m_border);
     }
 
-    void Circle::accept(vizualization::IVisitor& visitor) const
+    void Circle::accept(IObjectVisitor& visitor) const
     {
         visitor.visit(*this);
     }

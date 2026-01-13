@@ -12,7 +12,7 @@ namespace document::shapes
 
         std::string getName() const;
         std::unique_ptr<IObject> clone() const;
-        void accept(vizualization::IVisitor& visitor) const;
+        void accept(IObjectVisitor& visitor) const;
 
         // Text-specific properties
         const std::string& getText() const { return m_text; }

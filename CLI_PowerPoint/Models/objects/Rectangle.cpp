@@ -1,5 +1,5 @@
 #include "Rectangle.h"
-#include "../../Core/vizualization/IVisitor.h"
+#include "../IObjectVisitor.h"
 
 namespace document::shapes
 {
@@ -25,7 +25,7 @@ namespace document::shapes
         return std::make_unique<Rectangle>(m_geometry, m_fillColor, m_border);
     }
 
-    void Rectangle::accept(vizualization::IVisitor& visitor) const
+    void Rectangle::accept(IObjectVisitor& visitor) const
     {
         visitor.visit(*this);
     }

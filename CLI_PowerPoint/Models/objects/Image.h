@@ -12,7 +12,7 @@ namespace document::shapes
 
         std::string getName() const;
         std::unique_ptr<IObject> clone() const;
-        void accept(vizualization::IVisitor& visitor) const;
+        void accept(IObjectVisitor& visitor) const;
 
         // Image-specific properties
         const std::string& getImagePath() const { return m_imagePath; }

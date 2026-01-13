@@ -1,5 +1,5 @@
 #include "Text.h"
-#include "../../Core/vizualization/IVisitor.h"
+#include "../IObjectVisitor.h"
 
 namespace document::shapes
 {
@@ -29,7 +29,7 @@ namespace document::shapes
         return std::make_unique<Text>(m_geometry, m_text, m_textColor, m_backgroundColor, m_border);
     }
 
-    void Text::accept(vizualization::IVisitor& visitor) const
+    void Text::accept(IObjectVisitor& visitor) const
     {
         visitor.visit(*this);
     }

@@ -11,7 +11,7 @@ namespace document::shapes
 
         std::string getName() const;
         std::unique_ptr<IObject> clone() const;
-        void accept(vizualization::IVisitor& visitor) const;
+        void accept(IObjectVisitor& visitor) const;
 
         // Line-specific properties
         const utility::Color& getLineColor() const { return m_lineColor; }

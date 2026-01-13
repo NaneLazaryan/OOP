@@ -16,6 +16,6 @@ namespace serialization
 	private:
 		static std::string serializeSlide(const Slide& slide, size_t indent = 2);
 		static std::string serializeShape(const shapes::IObject & shape, size_t indent = 4);
-		static std::string serializeGeometry(const shapes::utility::Geometry& box);
+		//static std::string serializeGeometry(const shapes::utility::Geometry& box);
 	};
 }

@@ -4,6 +4,7 @@
 #include "../Models/objects/Text.h"
 #include "../Models/objects/Image.h"
 #include "../Models/objects/Line.h"
+#include "JsonSerializationVisitor.h"
 #include <fstream>
 #include <sstream>
 #include <iomanip>
@@ -80,110 +81,8 @@ std::string JsonSerializer::serializeSlide(const Slide& slide, size_t indent)
 
 std::string JsonSerializer::serializeShape(const shapes::IObject& shape, size_t indent)
 {
-    std::ostringstream oss;
-    std::string indentStr(indent, ' ');
-    std::string innerIndent(indent + 2, ' ');
+    JsonSerializationVisitor visitor(indent);
+    shape.accept(visitor);
 
-    oss << indentStr << "{\n";
-    oss << innerIndent << "\"type\": \"" << shape.getName() << "\",\n";
-    oss << innerIndent << "\"geometry\": " << serializeGeometry(shape.getGeometry());
-
-    // Serialize type-specific properties
-    if (shape.getType() == IObject::ObjectType::Circle ||
-        shape.getType() == IObject::ObjectType::Rectangle) {
-
-        if (shape.hasFillColor()) {
-            const auto& color = shape.getFillColor();
-            oss << ",\n" << innerIndent << "\"fillColor\": {"
-                << "\"r\": " << (int)color.getRed() << ", "
-                << "\"g\": " << (int)color.getGreen() << ", "
-                << "\"b\": " << (int)color.getBlue() << ", "
-                << "\"a\": " << (int)color.getAlpha() << "}";
-        }
-
-        if (shape.hasBorder()) {
-            const auto& border = shape.getBorder();
-            const auto& borderColor = border.getColor();
-            oss << ",\n" << innerIndent << "\"border\": {"
-                << "\"color\": {"
-                << "\"r\": " << (int)borderColor.getRed() << ", "
-                << "\"g\": " << (int)borderColor.getGreen() << ", "
-                << "\"b\": " << (int)borderColor.getBlue() << ", "
-                << "\"a\": " << (int)borderColor.getAlpha() << "}, "
-                << "\"thickness\": " << border.getThickness() << ", "
-                << "\"visible\": " << (border.isVisible() ? "true" : "false") << "}";
-        }
-    }
-    else if (shape.getType() == IObject::ObjectType::Line) {
-        const Line* lineShape = dynamic_cast<const Line*>(&shape);
-        if (lineShape) {
-            const auto& color = lineShape->getLineColor();
-            oss << ",\n" << innerIndent << "\"color\": {"
-                << "\"r\": " << (int)color.getRed() << ", "
-                << "\"g\": " << (int)color.getGreen() << ", "
-                << "\"b\": " << (int)color.getBlue() << ", "
-                << "\"a\": " << (int)color.getAlpha() << "}";
-            oss << ",\n" << innerIndent << "\"thickness\": " << lineShape->getThickness();
-        }
-    }
-    else if (shape.getType() == IObject::ObjectType::Text) {
-        const Text* textShape = dynamic_cast<const Text*>(&shape);
-        if (textShape) {
-            oss << ",\n" << innerIndent << "\"text\": \"" << textShape->getText() << "\"";
-
-            const auto& textColor = textShape->getTextColor();
-            oss << ",\n" << innerIndent << "\"textColor\": {"
-                << "\"r\": " << (int)textColor.getRed() << ", "
-                << "\"g\": " << (int)textColor.getGreen() << ", "
-                << "\"b\": " << (int)textColor.getBlue() << ", "
-                << "\"a\": " << (int)textColor.getAlpha() << "}";
-
-            if (textShape->hasFillColor()) {
-                const auto& bgColor = textShape->getFillColor();
-                oss << ",\n" << innerIndent << "\"backgroundColor\": {"
-                    << "\"r\": " << (int)bgColor.getRed() << ", "
-                    << "\"g\": " << (int)bgColor.getGreen() << ", "
-                    << "\"b\": " << (int)bgColor.getBlue() << ", "
-                    << "\"a\": " << (int)bgColor.getAlpha() << "}";
-            }
-        }
-    }
-    else if (shape.getType() == IObject::ObjectType::Image) {
-        const Image* imageShape = dynamic_cast<const Image*>(&shape);
-        if (imageShape) {
-            oss << ",\n" << innerIndent << "\"imagePath\": \"" << imageShape->getImagePath() << "\"";
-
-            if (imageShape->hasBorder()) {
-                const auto& border = imageShape->getBorder();
-                const auto& borderColor = border.getColor();
-                oss << ",\n" << innerIndent << "\"border\": {"
-                    << "\"color\": {"
-                    << "\"r\": " << (int)borderColor.getRed() << ", "
-                    << "\"g\": " << (int)borderColor.getGreen() << ", "
-                    << "\"b\": " << (int)borderColor.getBlue() << ", "
-                    << "\"a\": " << (int)borderColor.getAlpha() << "}, "
-                    << "\"thickness\": " << border.getThickness() << ", "
-                    << "\"visible\": " << (border.isVisible() ? "true" : "false") << "}";
-            }
-        }
-    }
-
-    oss << "\n" << indentStr << "}";
-
-    return oss.str();
-}
-
-std::string JsonSerializer::serializeGeometry(const shapes::utility::Geometry& geometry)
-{
-    std::ostringstream oss;
-
-    auto topLeft = geometry.getTopLeft();
-    auto bottomRight = geometry.getBottomRight();
-
-    oss << "{\"x1\": " << topLeft.x << ", "
-        << "\"y1\": " << topLeft.y << ", "
-        << "\"x2\": " << bottomRight.x << ", "
-        << "\"y2\": " << bottomRight.y << "}";
-
-    return oss.str();
+    return visitor.getResult();
 }

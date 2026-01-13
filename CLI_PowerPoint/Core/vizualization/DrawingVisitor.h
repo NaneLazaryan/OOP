@@ -1,6 +1,6 @@
 #pragma once
 
-#include "IVisitor.h"
+#include "../../Models/IObjectVisitor.h"
 #include "IPainter.h"
 #include "../../Models/objects/Rectangle.h"
 #include "../../Models/objects/Circle.h"
@@ -11,7 +11,7 @@
 namespace vizualization
 {
 	// Visitor that handles drawing operations
-	class DrawingVisitor : public IVisitor
+	class DrawingVisitor : public document::shapes::IObjectVisitor
 	{
 	public:
 		explicit DrawingVisitor(IPainter& painter);

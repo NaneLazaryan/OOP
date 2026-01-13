@@ -5,7 +5,7 @@
 #include "utility/Color.h"
 #include "utility/Border.h"
 
-namespace vizualization { class IVisitor; }
+namespace document::shapes { class IObjectVisitor; }
 
 namespace document::shapes
 {
@@ -47,7 +47,7 @@ namespace document::shapes
         virtual void setBorder(const utility::Border&) {}
 
         // Visitor pattern - accept a visitor
-        virtual void accept(vizualization::IVisitor& visitor) const = 0;
+        virtual void accept(IObjectVisitor& visitor) const = 0;
 
         // Cloning
         virtual std::unique_ptr<IObject> clone() const = 0;
